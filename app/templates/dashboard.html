@@ -1,0 +1,100 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard - Projeto UAB{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2 class="fw-bold text-dark">Painel de Controle</h2>
+        <p class="text-muted">Bem-vindo, {{ session.get('user_nome') }}! Aqui está o resumo das atividades.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Card: Total Eventos -->
+    <div class="col-md-3">
+        <div class="card stat-card bg-primary text-white h-100">
+            <div class="card-body">
+                <h6 class="text-uppercase fw-semibold opacity-75">Eventos Totais</h6>
+                <h2 class="display-5 fw-bold mb-0">{{ total_eventos }}</h2>
+                <i class="bi bi-calendar-check"></i>
+                <a href="{{ url_for('eventos.listar_eventos') }}" class="btn btn-light btn-sm mt-3 stretched-link">Ver Agenda</a>
+            </div>
+        </div>
+    </div>
+
+    {% if session.get('user_role') == 'ADMINISTRADOR' %}
+    <!-- Card: Pendentes -->
+    <div class="col-md-3">
+        <div class="card stat-card bg-warning text-dark h-100">
+            <div class="card-body">
+                <h6 class="text-uppercase fw-semibold opacity-75">Aprovações Pendentes</h6>
+                <h2 class="display-5 fw-bold mb-0">{{ pendentes }}</h2>
+                <i class="bi bi-clock-history"></i>
+                <a href="{{ url_for('aprovacoes.listar_pendentes') }}" class="btn btn-dark btn-sm mt-3 stretched-link">Analisar</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Card: Meus Eventos (Placeholder for future feature) -->
+    <div class="col-md-3">
+        <div class="card stat-card bg-info text-white h-100">
+            <div class="card-body">
+                <h6 class="text-uppercase fw-semibold opacity-75">Eventos este Mês</h6>
+                <h2 class="display-5 fw-bold mb-0">{{ eventos_mes or 0 }}</h2>
+                <i class="bi bi-calendar3"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card: Acesso Rápido -->
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                <h6 class="text-uppercase fw-semibold text-muted mb-3">Acesso Rápido</h6>
+                <div class="d-grid gap-2 w-100">
+                    {% if session.get('user_role') == 'ADMINISTRADOR' %}
+                    <a href="{{ url_for('eventos.criar_evento') }}" class="btn btn-outline-primary"><i class="bi bi-plus-circle me-2"></i>Novo Evento</a>
+                    {% endif %}
+                    <a href="{{ url_for('eventos.listar_eventos') }}" class="btn btn-outline-secondary"><i class="bi bi-calendar-event me-2"></i>Ver Agenda</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Agenda Recente</h5>
+                <a href="{{ url_for('eventos.listar_eventos') }}" class="btn btn-link btn-sm text-decoration-none">Ver Calendário Completo</a>
+            </div>
+            <div class="card-body">
+                <div id='mini-calendar'></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('mini-calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'pt-br',
+        height: 500,
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek'
+        },
+        events: '/api/events'
+    });
+    calendar.render();
+});
+</script>
+{% endblock %}

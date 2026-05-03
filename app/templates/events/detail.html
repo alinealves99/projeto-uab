@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+
+{% block title %}Detalhes do Evento - Projeto UAB{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 fw-bold">{{ evento.titulo }}</h4>
+                <div>
+                    {% if evento.status == 'DEFERIDO' %}
+                    <span class="badge bg-success">Deferido</span>
+                    {% elif evento.status == 'PENDENTE' %}
+                    <span class="badge bg-warning text-dark">Pendente</span>
+                    {% else %}
+                    <span class="badge bg-danger">Indeferido</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <div class="row mb-4">
+                    <div class="col-sm-6">
+                        <h6 class="text-uppercase text-muted small fw-bold">Data e Hora</h6>
+                        <p class="fs-5">
+                            <i class="bi bi-calendar3 me-2 text-primary"></i> {{ evento.data_inicio.strftime('%d/%m/%Y') }}<br>
+                            <i class="bi bi-clock me-2 text-primary"></i> {{ evento.data_inicio.strftime('%H:%M') }} - {{ evento.data_fim.strftime('%H:%M') }}
+                        </p>
+                    </div>
+                    <div class="col-sm-6">
+                        <h6 class="text-uppercase text-muted small fw-bold">Local</h6>
+                        <p class="fs-5">
+                            <i class="bi bi-geo-alt me-2 text-danger"></i> {{ evento.local }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="text-uppercase text-muted small fw-bold">Descrição</h6>
+                    <div class="p-3 bg-light rounded">
+                        {{ evento.descricao or 'Nenhuma descrição fornecida.' }}
+                    </div>
+                </div>
+
+                {% if evento.oficio_path %}
+                <div class="mb-4">
+                    <h6 class="text-uppercase text-muted small fw-bold">Documento (Ofício)</h6>
+                    <a href="{{ url_for('static', filename='uploads/' + evento.oficio_path) }}" target="_blank" class="btn btn-outline-primary">
+                        <i class="bi bi-file-earmark-pdf me-2"></i>Visualizar Ofício
+                    </a>
+                </div>
+                {% endif %}
+
+                {% if evento.status == 'INDEFERIDO' and evento.justificativa_indeferimento %}
+                <div class="alert alert-danger">
+                    <h6 class="fw-bold"><i class="bi bi-exclamation-triangle me-2"></i>Justificativa do Indeferimento:</h6>
+                    <p class="mb-0">{{ evento.justificativa_indeferimento }}</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-white py-3">
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('eventos.listar_eventos') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Voltar para Agenda
+                    </a>
+                    {% if session.get('user_role') == 'ADMINISTRADOR' %}
+                    <form method="POST" action="{{ url_for('eventos.excluir_evento', id=evento.id) }}" onsubmit="return confirm('Tem certeza que deseja excluir este evento permanentemente?')">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-2"></i>Excluir Evento
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

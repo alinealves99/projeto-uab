@@ -1,0 +1,111 @@
+{% extends "layout.html" %}
+
+{% block title %}Aprovações Pendentes - Projeto UAB{% endblock %}
+
+{% block content %}
+<h2>Aprovações Pendentes</h2>
+
+<div class="table-responsive mt-4">
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Evento</th>
+                <th>Data/Hora</th>
+                <th>Local</th>
+                <th>Ofício</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for evento in eventos %}
+            <tr>
+                <td>{{ evento.titulo }}</td>
+                <td>{{ evento.data_inicio.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ evento.local }}</td>
+                <td>
+                    <a href="{{ url_for('static', filename='uploads/' + (evento.oficio_path or '')) }}" target="_blank" class="btn btn-sm btn-info">Ver Ofício</a>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-success" onclick="aprovar({{ evento.id }})">Deferir</button>
+                    <button class="btn btn-sm btn-danger" onclick="reprovar({{ evento.id }})">Indeferir</button>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center">Nenhuma solicitação pendente.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Indeferimento -->
+<div class="modal fade" id="modalIndeferir" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Indeferir Evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formIndeferir">
+                    <input type="hidden" id="eventoId">
+                    <div class="mb-3">
+                        <label for="justificativa" class="form-label">Justificativa</label>
+                        <textarea class="form-control" id="justificativa" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-danger" onclick="confirmarIndeferimento()">Confirmar Indeferimento</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function aprovar(id) {
+    if (confirm('Deseja realmente DEFERIR este evento?')) {
+        fetch(`/aprovacoes/${id}/decisao`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ decisao: 'DEFERIDO' })
+        }).then(res => {
+            if (res.ok) window.location.reload();
+            else alert('Erro ao processar a solicitação');
+        });
+    }
+}
+
+function reprovar(id) {
+    document.getElementById('eventoId').value = id;
+    var modal = new bootstrap.Modal(document.getElementById('modalIndeferir'));
+    modal.show();
+}
+
+function confirmarIndeferimento() {
+    const id = document.getElementById('eventoId').value;
+    const justificativa = document.getElementById('justificativa').value;
+    
+    if (!justificativa) {
+        alert('Por favor, informe a justificativa.');
+        return;
+    }
+
+    fetch(`/aprovacoes/${id}/decisao`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            decisao: 'INDEFERIDO',
+            justificativa: justificativa
+        })
+    }).then(res => {
+        if (res.ok) window.location.reload();
+        else alert('Erro ao processar a solicitação');
+    });
+}
+</script>
+{% endblock %}
