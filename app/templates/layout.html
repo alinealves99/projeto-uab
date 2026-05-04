@@ -24,7 +24,10 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('eventos.listar_eventos') }}">Agenda</a>
                         </li>
-                        {% if session.get('user_role') == 'ADMINISTRADOR' %}
+                        {% if session.get('user_role') in ['ADMINISTRADOR', 'SECRETARIO_GERAL', 'SECRETARIO'] %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('eventos.listar_indeferidos') }}">Indeferidos</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('eventos.criar_evento') }}">Criar Evento</a>
                         </li>

@@ -2,20 +2,20 @@ from flask import Blueprint, request, jsonify, render_template, flash
 from app.models.evento import Evento
 from app.database import db
 from datetime import datetime
-from app.utils.auth_utils import login_required, roles_required
+from app.utils.auth_utils import login_required, role_required
 
 aprovacoes_bp = Blueprint('aprovacoes', __name__)
 
 @aprovacoes_bp.route('/events/approve', methods=['GET'])
 @login_required
-@roles_required('ADMINISTRADOR', 'SECRETARIO')
+@role_required('ADMINISTRADOR', 'SECRETARIO')
 def listar_pendentes():
     eventos = Evento.query.filter_by(status="PENDENTE").all()
     return render_template('events/approve.html', eventos=eventos)
 
 @aprovacoes_bp.route('/aprovacoes/<int:id>/decisao', methods=['POST'])
 @login_required
-@roles_required('ADMINISTRADOR', 'SECRETARIO')
+@role_required('ADMINISTRADOR', 'SECRETARIO')
 def processar_decisao(id):
     data = request.get_json()
     decisao = data.get('decisao')

@@ -5,13 +5,13 @@ from app.services.evento_service import verificar_conflito
 from app.services.upload_service import salvar_arquivo
 from app.database import db
 from datetime import datetime
-from app.utils.auth_utils import login_required, roles_required
+from app.utils.auth_utils import login_required, role_required
 
 eventos_bp = Blueprint('eventos', __name__)
 
 @eventos_bp.route('/events/create', methods=['GET', 'POST'])
 @login_required
-@roles_required('ADMINISTRADOR')
+@role_required('ADMINISTRADOR')
 def criar_evento():
     if request.method == 'POST':
         titulo = request.form.get('titulo')
@@ -87,6 +87,13 @@ def listar_eventos():
     
     return render_template('events/list.html', eventos=eventos)
 
+@eventos_bp.route('/events/indeferidos', methods=['GET'])
+@login_required
+@role_required('ADMINISTRADOR', 'SECRETARIO_GERAL', 'SECRETARIO')
+def listar_indeferidos():
+    eventos = Evento.query.filter_by(status='INDEFERIDO').order_by(Evento.data_inicio.desc()).all()
+    return render_template('events/indeferidos.html', eventos=eventos)
+
 @eventos_bp.route('/events/<int:id>', methods=['GET'])
 def detalhes_evento(id):
     evento = Evento.query.get_or_404(id)
@@ -94,7 +101,7 @@ def detalhes_evento(id):
 
 @eventos_bp.route('/events/delete/<int:id>', methods=['POST'])
 @login_required
-@roles_required('ADMINISTRADOR')
+@role_required('ADMINISTRADOR')
 def excluir_evento(id):
     evento = Evento.query.get_or_404(id)
     db.session.delete(evento)
