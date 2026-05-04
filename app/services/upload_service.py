@@ -3,8 +3,14 @@ import uuid
 from werkzeug.utils import secure_filename
 from flask import current_app
 
+ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 def salvar_arquivo(arquivo):
-    if not arquivo:
+    if not arquivo or not allowed_file(arquivo.filename):
         return None
     
     # Save inside app/static/uploads

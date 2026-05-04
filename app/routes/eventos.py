@@ -35,6 +35,9 @@ def criar_evento():
             return render_template('events/create.html')
 
         oficio_path = salvar_arquivo(oficio)
+        if not oficio_path:
+            flash("Extensão de arquivo não permitida", "danger")
+            return render_template('events/create.html')
         
         novo_evento = Evento(
             titulo=titulo,
