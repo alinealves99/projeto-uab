@@ -12,6 +12,10 @@ def login():
 
         usuario = Usuario.query.filter_by(email=email).first()
         if usuario and usuario.check_password(senha):
+            if not usuario.ativo:
+                flash('Sua conta está desativada. Entre em contato com o administrador.', 'warning')
+                return render_template('login.html')
+                
             session['user_id'] = usuario.id
             session['user_role'] = usuario.role
             session['user_nome'] = usuario.nome

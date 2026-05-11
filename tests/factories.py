@@ -14,6 +14,7 @@ class UsuarioFactory(factory.alchemy.SQLAlchemyModelFactory):
     email = factory.Sequence(lambda n: f"user{n}@example.com")
     senha_hash = "pbkdf2:sha256:260000$mocked_hash"
     role = "CONSULTOR"
+    ativo = True
 
 class EventoFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
@@ -27,3 +28,5 @@ class EventoFactory(factory.alchemy.SQLAlchemyModelFactory):
     data_fim = datetime.now() + timedelta(days=1, hours=2)
     local = "Sala 01 - Bloco A"
     status = "PENDENTE"
+    solicitante = factory.SubFactory(UsuarioFactory)
+    responsavel_decisao = None

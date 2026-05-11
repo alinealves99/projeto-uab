@@ -51,3 +51,30 @@ def test_conflito_de_horario(auth_client, db_session):
     
     response = client.post('/events/create', data=data, content_type='multipart/form-data')
     assert "Conflito de horário detectado" in response.get_data(as_text=True)
+
+def test_evento_indeferido_oculto_na_api(client, db_session):
+    EventoFactory(status="INDEFERIDO")
+    db_session.commit()
+    
+    response = client.get('/api/events')
+    assert response.status_code == 200
+    assert response.get_json() == []
+
+def test_acesso_lista_indeferidos_autorizado(auth_client, db_session):
+    client = auth_client(role="SECRETARIO")
+    response = client.get('/events/indeferidos')
+    assert response.status_code == 200
+
+def test_acesso_lista_indeferidos_negado(auth_client):
+    client = auth_client(role="CONSULTOR")
+    response = client.get('/events/indeferidos')
+    assert response.status_code == 302
+
+def test_menu_usuarios_visivel_apenas_admin(auth_client):
+    client = auth_client(role="ADMINISTRADOR")
+    response = client.get('/events')
+    assert 'Usuários' in response.get_data(as_text=True)
+    
+    client = auth_client(role="SECRETARIO")
+    response = client.get('/events')
+    assert 'Usuários' not in response.get_data(as_text=True)

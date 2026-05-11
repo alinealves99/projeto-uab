@@ -14,5 +14,9 @@ class Evento(db.Model):
     justificativa_indeferimento = db.Column(db.Text, nullable=True)
     data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
     data_decisao = db.Column(db.DateTime, nullable=True)
+    responsavel_decisao_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=True)
+    solicitante_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=True)
 
     anexos = db.relationship('Anexo', backref='evento', lazy=True)
+    solicitante = db.relationship('Usuario', foreign_keys=[solicitante_id], backref='eventos_solicitados')
+    responsavel_decisao = db.relationship('Usuario', foreign_keys=[responsavel_decisao_id], backref='eventos_decididos')

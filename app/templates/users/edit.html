@@ -1,0 +1,43 @@
+{% extends 'layout.html' %}
+
+{% block title %}Editar Usuário - Projeto UAB{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Editar Usuário: {{ usuario.nome }}</h4>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('usuarios.editar_usuario', id=usuario.id) }}" method="POST">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email (Não editável)</label>
+                        <input type="email" class="form-control" id="email" value="{{ usuario.email }}" readonly disabled>
+                        <div class="form-text">O email é o identificador único e não pode ser alterado.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome Completo</label>
+                        <input type="text" class="form-control" id="nome" name="nome" value="{{ usuario.nome }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Perfil de Acesso</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="ADMINISTRADOR" {% if usuario.role == 'ADMINISTRADOR' %}selected{% endif %}>ADMINISTRADOR</option>
+                            <option value="SECRETARIO" {% if usuario.role == 'SECRETARIO' %}selected{% endif %}>SECRETARIO</option>
+                            <option value="CONSULTOR" {% if usuario.role == 'CONSULTOR' %}selected{% endif %}>CONSULTOR</option>
+                        </select>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('usuarios.listar_usuarios') }}" class="btn btn-secondary me-md-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Atualizar Usuário</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

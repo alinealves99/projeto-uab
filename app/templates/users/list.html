@@ -1,0 +1,91 @@
+{% extends 'layout.html' %}
+
+{% block title %}Gerenciamento de Usuários - Projeto UAB{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Usuários</h1>
+    <a href="{{ url_for('usuarios.criar_usuario') }}" class="btn btn-primary">Novo Usuário</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Perfil</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td>{{ usuario.nome }}</td>
+                        <td>{{ usuario.email }}</td>
+                        <td>
+                            <span class="badge bg-secondary">{{ usuario.role }}</span>
+                        </td>
+                        <td>
+                            {% if usuario.ativo %}
+                                <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('usuarios.editar_usuario', id=usuario.id) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                                
+                                <form action="{{ url_for('usuarios.toggle_usuario', id=usuario.id) }}" method="POST" style="display: inline;">
+                                    {% if usuario.ativo %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja desativar este usuário?')">Desativar</button>
+                                    {% else %}
+                                        <button type="submit" class="btn btn-sm btn-outline-success">Ativar</button>
+                                    {% endif %}
+                                </form>
+
+                                <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#resetModal{{ usuario.id }}">
+                                    Senha
+                                </button>
+                            </div>
+
+                            <!-- Modal Redefinir Senha -->
+                            <div class="modal fade" id="resetModal{{ usuario.id }}" tabindex="-1" aria-labelledby="resetModalLabel{{ usuario.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="resetModalLabel{{ usuario.id }}">Redefinir Senha - {{ usuario.nome }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form action="{{ url_for('usuarios.reset_password', id=usuario.id) }}" method="POST">
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="nova_senha{{ usuario.id }}" class="form-label">Nova Senha</label>
+                                                    <input type="password" class="form-control" id="nova_senha{{ usuario.id }}" name="nova_senha" required>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-warning">Confirmar Redefinição</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">Nenhum usuário cadastrado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

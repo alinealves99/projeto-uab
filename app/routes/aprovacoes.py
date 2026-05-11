@@ -37,6 +37,7 @@ def processar_decisao(id):
         return jsonify({"error": "Decisão inválida"}), 400
         
     evento.data_decisao = datetime.utcnow()
+    evento.responsavel_decisao_id = session.get('user_id')
     db.session.commit()
     
     return jsonify({"message": "Decisão processada com sucesso"}), 200

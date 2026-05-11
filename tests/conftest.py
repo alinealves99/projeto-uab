@@ -2,6 +2,8 @@ import pytest
 from app import create_app
 from app.database import db
 from app.models.usuario import Usuario
+from app.models.evento import Evento
+from app.models.anexo import Anexo
 
 @pytest.fixture(scope='session')
 def app():

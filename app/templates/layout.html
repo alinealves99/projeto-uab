@@ -24,15 +24,22 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('eventos.listar_eventos') }}">Agenda</a>
                         </li>
-                        {% if session.get('user_role') in ['ADMINISTRADOR', 'SECRETARIO_GERAL', 'SECRETARIO'] %}
+                        {% if session.get('user_role') in ['ADMINISTRADOR', 'SECRETARIO'] %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('eventos.listar_indeferidos') }}">Indeferidos</a>
+                            <a class="nav-link" href="{{ url_for('eventos.listar_indeferidos') }}">Eventos Indeferidos</a>
                         </li>
+                        {% endif %}
+                        {% if session.get('user_role') in ['ADMINISTRADOR', 'SECRETARIO'] %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('eventos.criar_evento') }}">Criar Evento</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('aprovacoes.listar_pendentes') }}">Aprovações</a>
+                        </li>
+                        {% endif %}
+                        {% if session.get('user_role') == 'ADMINISTRADOR' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('usuarios.listar_usuarios') }}">Usuários</a>
                         </li>
                         {% endif %}
                     {% endif %}

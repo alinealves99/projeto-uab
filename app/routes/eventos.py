@@ -46,7 +46,8 @@ def criar_evento():
             data_fim=data_fim,
             local=local,
             oficio_path=oficio_path,
-            status="PENDENTE"
+            status="PENDENTE",
+            solicitante_id=session.get('user_id')
         )
         
         db.session.add(novo_evento)
@@ -92,7 +93,7 @@ def listar_eventos():
 
 @eventos_bp.route('/events/indeferidos', methods=['GET'])
 @login_required
-@role_required('ADMINISTRADOR', 'SECRETARIO_GERAL', 'SECRETARIO')
+@role_required('ADMINISTRADOR', 'SECRETARIO')
 def listar_indeferidos():
     eventos = Evento.query.filter_by(status='INDEFERIDO').order_by(Evento.data_inicio.desc()).all()
     return render_template('events/indeferidos.html', eventos=eventos)
