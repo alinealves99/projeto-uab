@@ -3,74 +3,94 @@
 {% block title %}Gerenciamento de Usuários - Projeto UAB{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Usuários</h1>
-    <a href="{{ url_for('usuarios.criar_usuario') }}" class="btn btn-primary">Novo Usuário</a>
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="fw-bold mb-0">Gerenciamento de Usuários</h2>
+        <p class="text-muted mb-0">Administre perfis e acessos ao sistema.</p>
+    </div>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+        <a href="{{ url_for('usuarios.criar_usuario') }}" class="btn btn-dark fw-bold shadow-sm">
+            <i class="bi bi-person-plus me-2"></i>Novo Usuário
+        </a>
+    </div>
 </div>
 
-<div class="card shadow-sm">
-    <div class="card-body">
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover align-middle">
+            <table class="table table-hover align-middle mb-0" aria-label="Lista de Usuários">
                 <thead class="table-light">
                     <tr>
-                        <th>Nome</th>
-                        <th>Email</th>
-                        <th>Perfil</th>
-                        <th>Status</th>
-                        <th>Ações</th>
+                        <th scope="col" class="ps-4">Nome</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Perfil</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="text-end pe-4">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for usuario in usuarios %}
                     <tr>
-                        <td>{{ usuario.nome }}</td>
-                        <td>{{ usuario.email }}</td>
+                        <td class="ps-4">
+                            <div class="fw-bold text-dark">{{ usuario.nome }}</div>
+                        </td>
+                        <td><span class="small text-muted">{{ usuario.email }}</span></td>
                         <td>
-                            <span class="badge bg-secondary">{{ usuario.role }}</span>
+                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2 small fw-semibold">
+                                {{ usuario.role }}
+                            </span>
                         </td>
                         <td>
                             {% if usuario.ativo %}
-                                <span class="badge bg-success">Ativo</span>
+                                <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3">Ativo</span>
                             {% else %}
-                                <span class="badge bg-danger">Inativo</span>
+                                <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle px-3">Inativo</span>
                             {% endif %}
                         </td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <a href="{{ url_for('usuarios.editar_usuario', id=usuario.id) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                        <td class="text-end pe-4">
+                            <div class="btn-group shadow-sm">
+                                <a href="{{ url_for('usuarios.editar_usuario', id=usuario.id) }}" class="btn btn-sm btn-white border" title="Editar Usuário">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
                                 
-                                <form action="{{ url_for('usuarios.toggle_usuario', id=usuario.id) }}" method="POST" style="display: inline;">
+                                <form action="{{ url_for('usuarios.toggle_usuario', id=usuario.id) }}" method="POST" class="d-inline">
                                     {% if usuario.ativo %}
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja desativar este usuário?')">Desativar</button>
+                                        <button type="submit" class="btn btn-sm btn-white border text-danger" title="Desativar" onclick="return confirm('Desativar este usuário impedirá seu acesso ao sistema. Continuar?')">
+                                            <i class="bi bi-person-x"></i>
+                                        </button>
                                     {% else %}
-                                        <button type="submit" class="btn btn-sm btn-outline-success">Ativar</button>
+                                        <button type="submit" class="btn btn-sm btn-white border text-success" title="Ativar">
+                                            <i class="bi bi-person-check"></i>
+                                        </button>
                                     {% endif %}
                                 </form>
 
-                                <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#resetModal{{ usuario.id }}">
-                                    Senha
+                                <button type="button" class="btn btn-sm btn-white border text-warning" title="Redefinir Senha" data-bs-toggle="modal" data-bs-target="#resetModal{{ usuario.id }}">
+                                    <i class="bi bi-key"></i>
                                 </button>
                             </div>
 
                             <!-- Modal Redefinir Senha -->
-                            <div class="modal fade" id="resetModal{{ usuario.id }}" tabindex="-1" aria-labelledby="resetModalLabel{{ usuario.id }}" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="resetModalLabel{{ usuario.id }}">Redefinir Senha - {{ usuario.nome }}</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <div class="modal fade text-start" id="resetModal{{ usuario.id }}" tabindex="-1" aria-labelledby="resetModalLabel{{ usuario.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content border-0 shadow-lg">
+                                        <div class="modal-header bg-warning bg-opacity-10 py-3">
+                                            <h5 class="modal-title fw-bold text-dark" id="resetModalLabel{{ usuario.id }}">
+                                                <i class="bi bi-shield-lock me-2"></i>Redefinir Senha
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                                         </div>
                                         <form action="{{ url_for('usuarios.reset_password', id=usuario.id) }}" method="POST">
-                                            <div class="modal-body">
+                                            <div class="modal-body p-4">
+                                                <p class="text-muted small">Defina uma nova senha para o usuário <strong>{{ usuario.nome }}</strong>.</p>
                                                 <div class="mb-3">
                                                     <label for="nova_senha{{ usuario.id }}" class="form-label">Nova Senha</label>
-                                                    <input type="password" class="form-control" id="nova_senha{{ usuario.id }}" name="nova_senha" required>
+                                                    <input type="password" class="form-control" id="nova_senha{{ usuario.id }}" name="nova_senha" required minlength="6" placeholder="Mínimo 6 caracteres">
                                                 </div>
                                             </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                <button type="submit" class="btn btn-warning">Confirmar Redefinição</button>
+                                            <div class="modal-footer bg-light py-2">
+                                                <button type="button" class="btn btn-link text-secondary text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-warning fw-bold px-4">Salvar Nova Senha</button>
                                             </div>
                                         </form>
                                     </div>
@@ -80,7 +100,10 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="5" class="text-center py-4 text-muted">Nenhum usuário cadastrado.</td>
+                        <td colspan="5" class="text-center py-5">
+                            <i class="bi bi-people display-4 d-block mb-3 text-muted"></i>
+                            <p class="text-muted mb-0">Nenhum usuário cadastrado no momento.</p>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>

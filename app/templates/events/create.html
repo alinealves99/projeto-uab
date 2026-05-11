@@ -4,46 +4,82 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4>Cadastrar Novo Evento</h4>
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white py-3">
+                <h4 class="mb-0 fs-5 fw-bold">Cadastrar Novo Evento</h4>
             </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('eventos.criar_evento') }}" enctype="multipart/form-data">
+            <div class="card-body p-4">
+                <form id="create-event-form" method="POST" action="{{ url_for('eventos.criar_evento') }}" enctype="multipart/form-data" class="needs-validation" novalidate>
                     <div class="mb-3">
-                        <label for="titulo" class="form-label">Título do Evento</label>
-                        <input type="text" class="form-control" id="titulo" name="titulo" required>
+                        <label for="titulo" class="form-label">Título do Evento <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="titulo" name="titulo" required placeholder="Ex: Reunião de Colegiado">
+                        <div class="invalid-feedback">Por favor, informe o título do evento.</div>
                     </div>
+
                     <div class="mb-3">
                         <label for="descricao" class="form-label">Descrição</label>
-                        <textarea class="form-control" id="descricao" name="descricao" rows="3"></textarea>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="3" placeholder="Detalhes adicionais sobre o evento..."></textarea>
                     </div>
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="data_inicio" class="form-label">Data e Hora de Início</label>
+                            <label for="data_inicio" class="form-label">Data e Hora de Início <span class="text-danger">*</span></label>
                             <input type="datetime-local" class="form-control" id="data_inicio" name="data_inicio" required>
+                            <div class="invalid-feedback">Data de início é obrigatória.</div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="data_fim" class="form-label">Data e Hora de Fim</label>
+                            <label for="data_fim" class="form-label">Data e Hora de Fim <span class="text-danger">*</span></label>
                             <input type="datetime-local" class="form-control" id="data_fim" name="data_fim" required>
+                            <div class="invalid-feedback">Data de fim é obrigatória.</div>
                         </div>
                     </div>
+
                     <div class="mb-3">
-                        <label for="local" class="form-label">Local</label>
-                        <input type="text" class="form-control" id="local" name="local" required>
+                        <label for="local" class="form-label">Local <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="local" name="local" required placeholder="Ex: Sala 204 - Bloco B">
+                        <div class="invalid-feedback">O local é obrigatório.</div>
                     </div>
-                    <div class="mb-3">
-                        <label for="oficio" class="form-label">Anexar Ofício (PDF/JPG/PNG)</label>
-                        <input type="file" class="form-control" id="oficio" name="oficio" required>
+
+                    <div class="mb-4">
+                        <label for="oficio" class="form-label">Anexar Ofício (PDF/Imagens) <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" id="oficio" name="oficio" required accept=".pdf,.png,.jpg,.jpeg,.doc,.docx">
+                        <div class="form-text">Formatos permitidos: PDF, JPG, PNG, DOCX. Máximo 10MB.</div>
+                        <div class="invalid-feedback">O anexo do ofício é obrigatório.</div>
                     </div>
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ url_for('eventos.listar_eventos') }}" class="btn btn-secondary">Cancelar</a>
-                        <button type="submit" class="btn btn-success">Cadastrar Evento</button>
+
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                        <a href="{{ url_for('eventos.listar_eventos') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i> Cancelar
+                        </a>
+                        <button type="submit" id="submit-btn" class="btn btn-success px-4 fw-bold">
+                            <i class="bi bi-check-circle me-1"></i> Cadastrar Evento
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    'use strict'
+    var form = document.getElementById('create-event-form');
+    var btn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        } else {
+            btn.classList.add('btn-loading');
+            btn.disabled = true;
+        }
+        form.classList.add('was-validated');
+    }, false);
+})();
+</script>
 {% endblock %}

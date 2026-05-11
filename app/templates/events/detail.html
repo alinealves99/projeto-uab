@@ -4,69 +4,102 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h4 class="mb-0 fw-bold">{{ evento.titulo }}</h4>
+    <div class="col-md-10 col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-4 px-4 border-bottom d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
                 <div>
-                    {% if evento.status == 'DEFERIDO' %}
-                    <span class="badge bg-success">Deferido</span>
-                    {% elif evento.status == 'PENDENTE' %}
-                    <span class="badge bg-warning text-dark">Pendente</span>
-                    {% else %}
-                    <span class="badge bg-danger">Indeferido</span>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-1 small">
+                            <li class="breadcrumb-item"><a href="{{ url_for('eventos.listar_eventos') }}" class="text-decoration-none text-muted">Agenda</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Detalhes</li>
+                        </ol>
+                    </nav>
+                    <h3 class="mb-0 fw-bold text-dark">{{ evento.titulo }}</h3>
+                </div>
+                <div class="text-start text-sm-end">
+                    <span class="badge badge-status rounded-pill {{ 'bg-success' if evento.status == 'DEFERIDO' else 'bg-warning text-dark' if evento.status == 'PENDENTE' else 'bg-danger' }}">
+                        {{ evento.status }}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="card-body p-4 p-md-5">
+                <div class="row g-4 mb-5">
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-start">
+                            <div class="bg-light p-3 rounded-circle me-3">
+                                <i class="bi bi-calendar3 text-dark fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-uppercase text-muted small fw-bold mb-1">Data e Horário</h6>
+                                <p class="mb-0 fw-semibold text-dark">
+                                    {{ evento.data_inicio.strftime('%d de %B de %Y') }}<br>
+                                    <span class="text-muted small">{{ evento.data_inicio.strftime('%H:%M') }} às {{ evento.data_fim.strftime('%H:%M') }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-start">
+                            <div class="bg-light p-3 rounded-circle me-3">
+                                <i class="bi bi-geo-alt text-dark fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-uppercase text-muted small fw-bold mb-1">Localização</h6>
+                                <p class="mb-0 fw-semibold text-dark">{{ evento.local }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-5">
+                    <h6 class="text-uppercase text-muted small fw-bold mb-3">Descrição do Evento</h6>
+                    <div class="p-4 bg-light rounded-4 text-secondary">
+                        {{ evento.descricao or 'Nenhuma descrição detalhada fornecida para este evento.' }}
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    {% if evento.oficio_path %}
+                    <div class="col-md-6">
+                        <h6 class="text-uppercase text-muted small fw-bold mb-3">Documentação Oficial</h6>
+                        <div class="d-grid">
+                            <a href="{{ url_for('static', filename='uploads/' + evento.oficio_path) }}" target="_blank" class="btn btn-outline-dark py-3">
+                                <i class="bi bi-file-earmark-pdf-fill me-2 fs-5"></i>Visualizar Ofício Anexo
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if evento.status == 'INDEFERIDO' and evento.justificativa_indeferimento %}
+                    <div class="col-md-6">
+                        <h6 class="text-uppercase text-muted small fw-bold mb-3">Motivo do Indeferimento</h6>
+                        <div class="alert alert-danger border-0 shadow-sm mb-0 rounded-4">
+                            <i class="bi bi-exclamation-octagon-fill me-2"></i>
+                            {{ evento.justificativa_indeferimento }}
+                        </div>
+                    </div>
                     {% endif %}
                 </div>
+
+                <div class="mt-5 pt-4 border-top small text-muted">
+                    <div class="row">
+                        <div class="col-6"><strong>Solicitante:</strong> {{ evento.solicitante.nome if evento.solicitante else 'N/A' }}</div>
+                        <div class="col-6 text-end"><strong>Criado em:</strong> {{ evento.data_criacao.strftime('%d/%m/%Y %H:%M') }}</div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body p-4">
-                <div class="row mb-4">
-                    <div class="col-sm-6">
-                        <h6 class="text-uppercase text-muted small fw-bold">Data e Hora</h6>
-                        <p class="fs-5">
-                            <i class="bi bi-calendar3 me-2 text-primary"></i> {{ evento.data_inicio.strftime('%d/%m/%Y') }}<br>
-                            <i class="bi bi-clock me-2 text-primary"></i> {{ evento.data_inicio.strftime('%H:%M') }} - {{ evento.data_fim.strftime('%H:%M') }}
-                        </p>
-                    </div>
-                    <div class="col-sm-6">
-                        <h6 class="text-uppercase text-muted small fw-bold">Local</h6>
-                        <p class="fs-5">
-                            <i class="bi bi-geo-alt me-2 text-danger"></i> {{ evento.local }}
-                        </p>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <h6 class="text-uppercase text-muted small fw-bold">Descrição</h6>
-                    <div class="p-3 bg-light rounded">
-                        {{ evento.descricao or 'Nenhuma descrição fornecida.' }}
-                    </div>
-                </div>
-
-                {% if evento.oficio_path %}
-                <div class="mb-4">
-                    <h6 class="text-uppercase text-muted small fw-bold">Documento (Ofício)</h6>
-                    <a href="{{ url_for('static', filename='uploads/' + evento.oficio_path) }}" target="_blank" class="btn btn-outline-primary">
-                        <i class="bi bi-file-earmark-pdf me-2"></i>Visualizar Ofício
-                    </a>
-                </div>
-                {% endif %}
-
-                {% if evento.status == 'INDEFERIDO' and evento.justificativa_indeferimento %}
-                <div class="alert alert-danger">
-                    <h6 class="fw-bold"><i class="bi bi-exclamation-triangle me-2"></i>Justificativa do Indeferimento:</h6>
-                    <p class="mb-0">{{ evento.justificativa_indeferimento }}</p>
-                </div>
-                {% endif %}
-            </div>
-            <div class="card-footer bg-white py-3">
-                <div class="d-flex justify-content-between">
-                    <a href="{{ url_for('eventos.listar_eventos') }}" class="btn btn-secondary">
+            
+            <div class="card-footer bg-light py-4 px-4 border-0">
+                <div class="d-flex flex-column flex-sm-row justify-content-between gap-3">
+                    <a href="{{ url_for('eventos.listar_eventos') }}" class="btn btn-outline-secondary px-4">
                         <i class="bi bi-arrow-left me-2"></i>Voltar para Agenda
                     </a>
+                    
                     {% if session.get('user_role') == 'ADMINISTRADOR' %}
-                    <form method="POST" action="{{ url_for('eventos.excluir_evento', id=evento.id) }}" onsubmit="return confirm('Tem certeza que deseja excluir este evento permanentemente?')">
-                        <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-trash me-2"></i>Excluir Evento
+                    <form method="POST" action="{{ url_for('eventos.excluir_evento', id=evento.id) }}" class="d-inline" onsubmit="return confirm('ATENÇÃO: Esta ação é irreversível e excluirá permanentemente o evento e seus registros. Deseja continuar?')">
+                        <button type="submit" class="btn btn-danger px-4 shadow-sm">
+                            <i class="bi bi-trash3 me-2"></i>Excluir Registro
                         </button>
                     </form>
                     {% endif %}
@@ -76,5 +109,3 @@
     </div>
 </div>
 {% endblock %}
-
-

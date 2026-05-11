@@ -1,60 +1,99 @@
 :root {
-    --primary-color: #0d6efd;
-    --secondary-color: #6c757d;
+    --primary-color: #212529;
     --success-color: #198754;
-    --info-color: #0dcaf0;
     --warning-color: #ffc107;
     --danger-color: #dc3545;
-    --light-color: #f8f9fa;
-    --dark-color: #212529;
-    --sidebar-width: 250px;
+    --light-bg: #f8f9fa;
 }
 
 body {
-    background-color: #f4f7f6;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light-bg);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-.navbar {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+main {
+    flex: 1;
 }
 
-.card {
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* Acessibilidade: Foco visível */
+a:focus, button:focus, input:focus, select:focus, textarea:focus {
+    outline: 2px solid var(--warning-color);
+    outline-offset: 2px;
+    box-shadow: none !important;
 }
 
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+/* Navegação */
+.navbar-nav .nav-link.active {
+    font-weight: bold;
+    border-bottom: 2px solid var(--warning-color);
 }
 
-.stat-card {
+/* Agenda */
+#calendar-container {
     position: relative;
-    overflow: hidden;
+    min-height: 400px;
 }
 
-.stat-card .bi {
+#calendar-loading {
     position: absolute;
-    right: 20px;
-    bottom: 20px;
-    font-size: 3rem;
-    opacity: 0.2;
-}
-
-.fc {
-    background: white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    background: rgba(255,255,255,0.8);
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border-radius: 8px;
 }
 
-.fc-toolbar-title {
-    font-size: 1.25rem !important;
+/* Formulários */
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
 }
 
-.badge-pending { background-color: var(--warning-color); color: var(--dark-color); }
-.badge-approved { background-color: var(--success-color); }
-.badge-rejected { background-color: var(--danger-color); }
+.invalid-feedback {
+    font-weight: 500;
+}
+
+/* Badges e Status */
+.badge-status {
+    padding: 0.5em 0.8em;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+}
+
+/* Responsividade FullCalendar */
+@media (max-width: 768px) {
+    .fc-header-toolbar {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .fc-toolbar-title {
+        font-size: 1rem !important;
+    }
+}
+
+/* Animações de Carregamento */
+.btn-loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    top: 50%;
+    left: 50%;
+    margin-top: -0.5rem;
+    margin-left: -0.5rem;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border .75s linear infinite;
+}

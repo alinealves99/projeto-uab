@@ -4,6 +4,9 @@ Sistema para gerenciamento de eventos, controle de agenda do plenário e fluxo d
 
 ## Principais Funcionalidades
 
+- **Design System Moderno**: Padronização visual com Bootstrap 5, foco em legibilidade e contraste.
+- **Acessibilidade**: Navegação por teclado, labels semânticas e suporte a leitores de tela (ARIA).
+- **Responsividade**: Experiência otimizada para Desktop, Tablet e Mobile (Agenda dinâmica).
 - **Gestão de Usuários**: Cadastro, edição, ativação/desativação e redefinição de senha (apenas administradores).
 - **Agenda Interativa**: Visualização de eventos deferidos em calendário (FullCalendar).
 - **Fluxo de Aprovação**: Solicitação de eventos com upload de ofício e análise por secretários.

@@ -4,40 +4,67 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">Editar Usuário: {{ usuario.nome }}</h4>
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white py-3">
+                <h4 class="mb-0 fs-5 fw-bold">Editar Usuário</h4>
             </div>
-            <div class="card-body">
-                <form action="{{ url_for('usuarios.editar_usuario', id=usuario.id) }}" method="POST">
+            <div class="card-body p-4">
+                <form id="edit-user-form" method="POST" action="{{ url_for('usuarios.editar_usuario', id=usuario.id) }}" class="needs-validation" novalidate>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email (Não editável)</label>
-                        <input type="email" class="form-control" id="email" value="{{ usuario.email }}" readonly disabled>
-                        <div class="form-text">O email é o identificador único e não pode ser alterado.</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="nome" class="form-label">Nome Completo</label>
+                        <label for="nome" class="form-label">Nome Completo <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="nome" name="nome" value="{{ usuario.nome }}" required>
+                        <div class="invalid-feedback">O nome é obrigatório.</div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="role" class="form-label">Perfil de Acesso</label>
-                        <select class="form-select" id="role" name="role" required>
-                            <option value="ADMINISTRADOR" {% if usuario.role == 'ADMINISTRADOR' %}selected{% endif %}>ADMINISTRADOR</option>
-                            <option value="SECRETARIO" {% if usuario.role == 'SECRETARIO' %}selected{% endif %}>SECRETARIO</option>
-                            <option value="CONSULTOR" {% if usuario.role == 'CONSULTOR' %}selected{% endif %}>CONSULTOR</option>
-                        </select>
+                        <label class="form-label">Email Institucional</label>
+                        <input type="email" class="form-control bg-light" value="{{ usuario.email }}" readonly disabled>
+                        <div class="form-text">O email não pode ser alterado por razões de segurança.</div>
                     </div>
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="{{ url_for('usuarios.listar_usuarios') }}" class="btn btn-secondary me-md-2">Cancelar</a>
-                        <button type="submit" class="btn btn-primary">Atualizar Usuário</button>
+                    <div class="mb-4">
+                        <label for="role" class="form-label">Perfil de Acesso <span class="text-danger">*</span></label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="ADMINISTRADOR" {{ 'selected' if usuario.role == 'ADMINISTRADOR' }}>ADMINISTRADOR (Pleno)</option>
+                            <option value="SECRETARIO" {{ 'selected' if usuario.role == 'SECRETARIO' }}>SECRETÁRIO (Aprovação)</option>
+                            <option value="CONSULTOR" {{ 'selected' if usuario.role == 'CONSULTOR' }}>CONSULTOR (Visualização)</option>
+                        </select>
+                        <div class="invalid-feedback">Selecione um perfil de acesso.</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <a href="{{ url_for('usuarios.listar_usuarios') }}" class="btn btn-link text-secondary text-decoration-none">
+                            <i class="bi bi-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="submit" id="submit-btn" class="btn btn-dark fw-bold px-4">
+                            Salvar Alterações
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    'use strict'
+    var form = document.getElementById('edit-user-form');
+    var btn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        } else {
+            btn.classList.add('btn-loading');
+            btn.disabled = true;
+        }
+        form.classList.add('was-validated');
+    }, false);
+})();
+</script>
 {% endblock %}

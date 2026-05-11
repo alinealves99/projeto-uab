@@ -1,54 +1,48 @@
-# Plano de Testes (Baseado em TDD)
+# Plano de Testes (Revisado - Foco em Frontend e Integração)
 
 ## 1. Estratégia de Testes
 
-Utilizaremos o ciclo **Red-Green-Refactor**. Os testes serão divididos em:
-- **Unitários**: Lógica de modelos e serviços.
-- **Integração**: Rotas, persistência e controle de acesso.
-- **Segurança**: Validação de roles e estados de usuário.
+- **Unitários**: Validação de filtros e formatadores.
+- **Integração**: Verificação de renderização de templates Flask e resposta a sessões.
+- **E2E/Visual (Manual/Automático)**: Testes de responsividade e fluxos de UI.
 
-## 2. Cenários de Teste
+## 2. Cenários de Teste de Frontend
 
-### 2.1 Gestão de Usuários (ADMINISTRADOR apenas)
-- `test_admin_acessa_lista_usuarios`: Garante que ADMIN vê a lista de usuários (Status 200).
-- `test_nao_admin_bloqueado_lista_usuarios`: Garante que outros perfis são redirecionados (Status 302).
-- `test_criar_usuario_valido`: Criação de novo usuário com sucesso.
-- `test_editar_usuario_perfil`: Alteração de Role de CONSULTOR para SECRETARIO.
-- `test_inativar_usuario`: Muda status `ativo` para False.
-- `test_redefinir_senha_usuario`: Altera senha_hash e valida novo login.
+### 2.1 Navegação e Responsividade
+- `test_layout_responsivo_mobile`: Verifica se o menu colapsa em resoluções < 768px.
+- `test_agenda_view_switch`: Verifica se o FullCalendar muda para `listWeek` em mobile.
+- `test_active_menu_highlight`: Garante que o item de menu atual possui a classe `.active`.
 
-### 2.2 Autenticação e Bloqueio
-- `test_login_usuario_ativo`: Login bem-sucedido.
-- `test_login_usuario_inativo`: Tentativa de login com usuário `ativo=False` deve falhar com mensagem de erro.
-- `test_logout_limpa_sessao`: Garante que dados da sessão são removidos.
+### 2.2 Acessibilidade (A11y)
+- `test_form_labels_association`: Verifica se todos os `<input>` possuem `<label>` associado via `for/id`.
+- `test_keyboard_navigation`: Valida se o foco segue a ordem lógica (Tab) nos formulários de cadastro.
+- `test_aria_attributes_alerts`: Verifica se os alertas flash possuem `role="alert"`.
 
-### 2.3 Eventos Indeferidos e Visibilidade
-- `test_evento_indeferido_oculto_agenda`: Garante que eventos INDEFERIDOS não aparecem no endpoint da agenda pública.
-- `test_acesso_lista_indeferidos_autorizado`: ADMIN e SECRETARIO acessam a lista (Status 200).
-- `test_acesso_lista_indeferidos_negado`: CONSULTOR não acessa a lista (Status 302).
-- `test_dados_lista_indeferidos`: Valida se a lista exibe justificativa e responsável pela decisão.
+### 2.3 Integração e Estados de Tela
+- `test_agenda_loading_state`: Simula atraso na API e verifica se o spinner de carregamento é exibido.
+- `test_agenda_empty_state`: Verifica a mensagem de "Nenhum evento" quando a API retorna `[]`.
+- `test_form_submission_loading`: Verifica se o botão de envio fica `disabled` após o clique.
+- `test_validation_feedback_visual`: Garante que campos inválidos exibem a borda vermelha e a mensagem de erro.
 
-### 2.4 Interface e Menus (Mock de Sessão)
-- `test_menu_usuarios_visivel_apenas_admin`: Verifica se o link "Usuários" aparece no HTML apenas para ADMIN.
-- `test_menu_indeferidos_oculto_consultor`: Verifica se o link "Eventos Indeferidos" está oculto para CONSULTOR.
+### 2.4 Visibilidade por Perfil
+- `test_admin_menu_users_visibility`: ADMIN vê menu "Usuários".
+- `test_secretario_menu_users_hidden`: SECRETARIO NÃO vê menu "Usuários".
+- `test_consultor_menus_restricted`: CONSULTOR NÃO vê "Aprovações" nem "Eventos Indeferidos".
 
-### 2.5 Regressão e Segurança
-- `test_protecao_rota_admin_id_direto`: Tenta editar usuário via ID em POST sem ser ADMIN.
-- `test_upload_sanitizacao`: (Existente) Validação de segurança em nomes de arquivos.
-- `test_conflito_horario_evento`: (Existente) Garante que eventos não se sobrepõem.
+### 2.5 Componentes e Design
+- `test_status_badges_colors`: Verifica se DEFERIDO é verde, PENDENTE é amarelo e INDEFERIDO é vermelho.
+- `test_table_responsivity`: Garante que tabelas de usuários possuem scroll horizontal em telas pequenas.
 
 ## 3. Ferramentas
-- **pytest**: Executor.
-- **coverage**: Mínimo de 80% de cobertura.
-- **factory-boy**: Geração de massa (Usuários e Eventos).
-- **pytest-flask**: Test client e session management.
+- **Pytest**: Execução de testes de integração backend/frontend.
+- **Lighthouse (Manual)**: Auditoria de acessibilidade e performance.
+- **Playwright/Cypress (Opcional/Futuro)**: Para automação E2E completa.
 
 ## 4. Instruções de Execução
 ```bash
-# Executar suite completa
-pytest
+# Rodar testes de integração existentes
+PYTHONPATH=. pytest
 
-# Gerar cobertura
-coverage run -m pytest
-coverage report -m
+# Auditoria visual manual
+python run.py # e acessar via navegador com ferramentas de desenvolvedor
 ```

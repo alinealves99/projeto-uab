@@ -3,28 +3,66 @@
 {% block title %}Login - Projeto UAB{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-4">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white text-center">
-                <h4>Login</h4>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('auth.login') }}">
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-md-5 col-lg-4">
+        <div class="text-center mb-4">
+            <h1 class="fw-bold text-dark">UAB Eventos</h1>
+            <p class="text-muted">Acesse o sistema de gestão de agenda</p>
+        </div>
+        
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4 p-md-5">
+                <form id="login-form" method="POST" action="{{ url_for('auth.login') }}" class="needs-validation" novalidate>
                     <div class="mb-3">
-                        <label for="email" class="form-label">E-mail</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
+                        <label for="email" class="form-label">E-mail Institucional</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
+                            <input type="email" class="form-control border-start-0 ps-0" id="email" name="email" required placeholder="seu@email.com">
+                            <div class="invalid-feedback">Informe um e-mail válido.</div>
+                        </div>
                     </div>
-                    <div class="mb-3">
+                    
+                    <div class="mb-4">
                         <label for="senha" class="form-label">Senha</label>
-                        <input type="password" class="form-control" id="senha" name="senha" required>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+                            <input type="password" class="form-control border-start-0 ps-0" id="senha" name="senha" required placeholder="Sua senha secreta">
+                            <div class="invalid-feedback">A senha é obrigatória.</div>
+                        </div>
                     </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Entrar</button>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" id="submit-btn" class="btn btn-dark fw-bold py-2 shadow-sm">
+                            Entrar no Sistema
+                        </button>
                     </div>
                 </form>
+            </div>
+            <div class="card-footer bg-light border-0 py-3 text-center small text-muted">
+                Dificuldades no acesso? Contate o suporte técnico.
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    'use strict'
+    var form = document.getElementById('login-form');
+    var btn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        } else {
+            btn.classList.add('btn-loading');
+            btn.disabled = true;
+        }
+        form.classList.add('was-validated');
+    }, false);
+})();
+</script>
 {% endblock %}

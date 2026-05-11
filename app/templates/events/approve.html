@@ -3,62 +3,91 @@
 {% block title %}Aprovações Pendentes - Projeto UAB{% endblock %}
 
 {% block content %}
-<h2>Aprovações Pendentes</h2>
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2 class="fw-bold text-dark mb-1">Aprovações Pendentes</h2>
+        <p class="text-muted">Analise as solicitações de reserva e tome uma decisão fundamentada.</p>
+    </div>
+</div>
 
-<div class="table-responsive mt-4">
-    <table class="table table-bordered table-hover">
-        <thead class="table-dark">
-            <tr>
-                <th>Evento</th>
-                <th>Data/Hora</th>
-                <th>Local</th>
-                <th>Ofício</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for evento in eventos %}
-            <tr>
-                <td>{{ evento.titulo }}</td>
-                <td>{{ evento.data_inicio.strftime('%d/%m/%Y %H:%M') }}</td>
-                <td>{{ evento.local }}</td>
-                <td>
-                    <a href="{{ url_for('static', filename='uploads/' + (evento.oficio_path or '')) }}" target="_blank" class="btn btn-sm btn-info">Ver Ofício</a>
-                </td>
-                <td>
-                    <button class="btn btn-sm btn-success" onclick="aprovar({{ evento.id }})">Deferir</button>
-                    <button class="btn btn-sm btn-danger" onclick="reprovar({{ evento.id }})">Indeferir</button>
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="5" class="text-center">Nenhuma solicitação pendente.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" aria-label="Lista de aprovações pendentes">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col" class="ps-4">Evento</th>
+                        <th scope="col">Data/Hora</th>
+                        <th scope="col">Local</th>
+                        <th scope="col">Documentação</th>
+                        <th scope="col" class="text-end pe-4">Ações de Análise</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for evento in eventos %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="fw-bold text-dark">{{ evento.titulo }}</div>
+                            <small class="text-muted d-block text-truncate" style="max-width: 200px;">{{ evento.descricao or 'Sem descrição' }}</small>
+                        </td>
+                        <td>
+                            <div class="small">
+                                <i class="bi bi-calendar-event me-1"></i> {{ evento.data_inicio.strftime('%d/%m/%Y') }}<br>
+                                <i class="bi bi-clock me-1 text-muted"></i> {{ evento.data_inicio.strftime('%H:%M') }}
+                            </div>
+                        </td>
+                        <td><span class="small">{{ evento.local }}</span></td>
+                        <td>
+                            <a href="{{ url_for('static', filename='uploads/' + (evento.oficio_path or '')) }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                <i class="bi bi-file-earmark-text me-1"></i>Ver Ofício
+                            </a>
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="btn-group shadow-sm">
+                                <button class="btn btn-sm btn-success fw-bold px-3" onclick="aprovar({{ evento.id }}, '{{ evento.titulo }}')" title="Deferir Evento">
+                                    <i class="bi bi-check-lg me-1"></i>Deferir
+                                </button>
+                                <button class="btn btn-sm btn-danger fw-bold px-3" onclick="reprovar({{ evento.id }}, '{{ evento.titulo }}')" title="Indeferir Evento">
+                                    <i class="bi bi-x-lg me-1"></i>Indeferir
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <i class="bi bi-clipboard-check display-4 d-block mb-3 text-muted"></i>
+                            <p class="text-muted mb-0">Não há solicitações aguardando aprovação.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <!-- Modal Indeferimento -->
-<div class="modal fade" id="modalIndeferir" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Indeferir Evento</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<div class="modal fade" id="modalIndeferir" tabindex="-1" aria-labelledby="modalIndeferirLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-danger text-white py-3">
+                <h5 class="modal-title fw-bold" id="modalIndeferirLabel">Indeferir Solicitação</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
+                <p class="mb-3 text-muted">Explique o motivo da rejeição para o evento: <br><strong id="nomeEventoNegado" class="text-dark"></strong></p>
                 <form id="formIndeferir">
                     <input type="hidden" id="eventoId">
-                    <div class="mb-3">
-                        <label for="justificativa" class="form-label">Justificativa</label>
-                        <textarea class="form-control" id="justificativa" required></textarea>
+                    <div class="mb-0">
+                        <label for="justificativa" class="form-label fw-bold">Justificativa <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="justificativa" rows="4" required placeholder="Ex: Conflito de agenda institucional ou falta de documentos necessários."></textarea>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                <button type="button" class="btn btn-danger" onclick="confirmarIndeferimento()">Confirmar Indeferimento</button>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-link text-secondary text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnConfirmarRejeicao" class="btn btn-danger fw-bold px-4" onclick="confirmarIndeferimento()">Confirmar Rejeição</button>
             </div>
         </div>
     </div>
@@ -67,33 +96,46 @@
 
 {% block extra_js %}
 <script>
-function aprovar(id) {
-    if (confirm('Deseja realmente DEFERIR este evento?')) {
+function aprovar(id, titulo) {
+    if (confirm(`Deseja realmente DEFERIR o evento "${titulo}"?\nEsta ação o tornará visível na agenda pública.`)) {
+        const btn = event.currentTarget;
+        btn.classList.add('btn-loading');
+        btn.disabled = true;
+
         fetch(`/aprovacoes/${id}/decisao`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ decisao: 'DEFERIDO' })
         }).then(res => {
             if (res.ok) window.location.reload();
-            else alert('Erro ao processar a solicitação');
+            else {
+                alert('Erro ao processar a solicitação');
+                btn.classList.remove('btn-loading');
+                btn.disabled = false;
+            }
         });
     }
 }
 
-function reprovar(id) {
+function reprovar(id, titulo) {
     document.getElementById('eventoId').value = id;
-    var modal = new bootstrap.Modal(document.getElementById('modalIndeferir'));
+    document.getElementById('nomeEventoNegado').textContent = titulo;
+    const modal = new bootstrap.Modal(document.getElementById('modalIndeferir'));
     modal.show();
 }
 
 function confirmarIndeferimento() {
     const id = document.getElementById('eventoId').value;
     const justificativa = document.getElementById('justificativa').value;
+    const btn = document.getElementById('btnConfirmarRejeicao');
     
     if (!justificativa) {
-        alert('Por favor, informe a justificativa.');
+        alert('Por favor, informe a justificativa obrigatória.');
         return;
     }
+
+    btn.classList.add('btn-loading');
+    btn.disabled = true;
 
     fetch(`/aprovacoes/${id}/decisao`, {
         method: 'POST',
@@ -104,7 +146,11 @@ function confirmarIndeferimento() {
         })
     }).then(res => {
         if (res.ok) window.location.reload();
-        else alert('Erro ao processar a solicitação');
+        else {
+            alert('Erro ao processar a solicitação');
+            btn.classList.remove('btn-loading');
+            btn.disabled = false;
+        }
     });
 }
 </script>
