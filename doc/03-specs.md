@@ -40,12 +40,15 @@
 ### 2.4 Listagens e Cards
 - **Badges**: Uso de `.badge` com cores semânticas para Status.
 - **Tabelas**: Responsivas (`.table-responsive`), com linhas alternadas e hover.
+- **Ações**: Botões de ação em tabelas devem utilizar `d-flex gap-2` para garantir espaçamento e alinhamento, evitando o uso de `btn-group` quando envolverem formulários ou modais.
 
 ## 3. Experiência do Usuário (UX)
 
 ### 3.1 Estados de Tela
 - **Carregamento**: Skeleton screens ou Spinners Bootstrap em ações assíncronas.
-- **Erro**: Alertas (`.alert-danger`) claros com instrução de correção.
+- **Botões Administrativos**: Devem entrar em estado `disabled` e exibir um spinner (`.btn-loading`) durante o processamento de requisições `fetch/AJAX` ou submissões de formulário.
+- **Prevenção de Cliques Duplos**: Bloqueio obrigatório de botões após o primeiro clique válido.
+- **Erro**: Alertas (`.alert-danger`) claros com instrução de correção. Em requisições AJAX, exibir erros específicos retornados pelo servidor via `alert()` ou modais.
 - **Vazio**: Ilustração ou ícone com texto descritivo quando não houver dados.
 
 ### 3.2 Acessibilidade (A11y)
@@ -59,12 +62,34 @@
 
 ## 4. Integração Frontend/Backend
 
-- **Flash Messages**: Renderização no topo do `<main>`, desaparecendo após 5 segundos (opcional) ou via botão fechar.
-- **Responses**:
-  - Erros 403/404: Páginas customizadas ou redirecionamento com flash informativo.
-  - Erros de Validação: Mapeamento de erros do backend para os campos correspondentes no frontend.
+- **Flash Messages**: Renderização centralizada no `layout.html`, mapeando categorias Flask (`success`, `danger`, `warning`, `info`) para classes de alerta Bootstrap correspondentes.
+- **Formulários**: 
+  - Submissão via POST tradicional para rotas Flask.
+  - Validação via `needs-validation` (Bootstrap JS) impedindo o envio de campos vazios ou inválidos.
+  - Bloqueio de cliques duplos via JavaScript (estado `disabled` no submit).
+- **APIs Assíncronas**: 
+  - Consumo de `/api/events` pelo FullCalendar com tratamento de estados de carregamento (spinner) e erro (console log/visual fallback).
 
-## 5. Responsividade (Breakpoints)
+## 6. Arquitetura de Banco de Dados e Performance
+
+### 6.1 Persistência e Sincronização
+- **Engine**: SQLite (em arquivo `instance/database.db`).
+- **ORM**: SQLAlchemy 3.x.
+- **Caminho Absoluto**: O banco é configurado com caminho absoluto para garantir permissões de escrita e suporte a arquivos de log (`-wal`, `-shm`) do SQLite em qualquer ambiente de execução.
+- **Tratamento de Transações**: Todas as operações de escrita (`add`, `delete`, `commit`) devem ser encapsuladas em blocos `try/except` com `db.session.rollback()` automático para prevenir travamentos e corrupção de dados.
+- **Migrações**: Gerenciadas pelo **Flask-Migrate** (Alembic).
+
+### 6.2 Otimização de Performance
+- **Cache de Dados**: Utilização de **Flask-Caching** para armazenar resultados de consultas pesadas (ex: estatísticas do Dashboard e Relatórios) por períodos curtos (ex: 5 minutos).
+- **Processamento Assíncrono (Jobs)**: Implementação de tarefas em segundo plano (via threads ou agendadores leves) para operações de manutenção, como limpeza de arquivos órfãos na pasta de uploads.
+- **Minificação de Ativos**: Garantir que o CSS e JS sejam entregues de forma eficiente, evitando redundâncias.
+
+### 6.3 Modularização e Manutenibilidade
+- **Service Layer**: Toda a lógica de negócio deve residir em `/app/services/`, evitando código pesado dentro das rotas (controllers).
+- **Eliminação de Duplicidade**: Centralizar cálculos de estatísticas e filtros de consulta em serviços reutilizáveis.
+- **Singleton Pattern**: Garantir instâncias únicas de extensões (db, migrate, cache) para evitar imports circulares.
+
+## 7. Responsividade (Breakpoints)
 - **Mobile (< 576px)**: Formulários em coluna única, agenda em lista.
 - **Tablet (576px - 992px)**: Menus colapsados, cards em grid 2 colunas.
 - **Desktop (> 992px)**: Grid completo, menu expandido.

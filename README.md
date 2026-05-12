@@ -5,6 +5,9 @@ Sistema para gerenciamento de eventos, controle de agenda do plenário e fluxo d
 ## Principais Funcionalidades
 
 - **Design System Moderno**: Padronização visual com Bootstrap 5, foco em legibilidade e contraste.
+- **Performance Otimizada**: Uso de Cache (Flask-Caching) para estatísticas e relatórios.
+- **Tarefas em Background**: Automação de manutenção (limpeza de arquivos) via Flask-APScheduler.
+- **Arquitetura Modular**: Camada de serviços (Service Layer) separada das rotas para melhor manutenibilidade.
 - **Acessibilidade**: Navegação por teclado, labels semânticas e suporte a leitores de tela (ARIA).
 - **Responsividade**: Experiência otimizada para Desktop, Tablet e Mobile (Agenda dinâmica).
 - **Gestão de Usuários**: Cadastro, edição, ativação/desativação e redefinição de senha (apenas administradores).
@@ -36,6 +39,43 @@ Sistema para gerenciamento de eventos, controle de agenda do plenário e fluxo d
 5. **Executar a aplicação**:
    ```bash
    python run.py
+   ```
+
+## Gerenciamento de Banco de Dados
+
+O projeto utiliza **Flask-Migrate** para gerenciar o esquema do banco de dados.
+
+### Inicialização do Banco (Setup Inicial)
+Se estiver rodando pela primeira vez ou o banco foi excluído:
+```bash
+export FLASK_APP=run.py
+flask db upgrade
+```
+
+### Criar novas migrações (após alterar Models)
+```bash
+flask db migrate -m "Descrição da alteração"
+flask db upgrade
+```
+
+### Reset do Banco (Limpeza Total)
+```bash
+rm instance/database.db
+flask db upgrade
+```
+
+## Solução de Problemas (Troubleshooting)
+
+### Erro: "attempt to write a readonly database"
+Este erro geralmente ocorre devido a permissões de pasta ou caminhos incorretos no SQLite.
+1. Certifique-se de que a pasta `instance/` tem permissão de escrita:
+   ```bash
+   chmod 775 instance
+   ```
+2. O sistema está configurado para usar caminhos absolutos no `config.py`, o que evita este erro em diferentes ambientes.
+3. Se o erro persistir, verifique se não há processos órfãos travando o arquivo:
+   ```bash
+   pkill -9 python
    ```
 
 ## Execução de Testes

@@ -48,25 +48,25 @@
                             {% endif %}
                         </td>
                         <td class="text-end pe-4">
-                            <div class="btn-group shadow-sm">
-                                <a href="{{ url_for('usuarios.editar_usuario', id=usuario.id) }}" class="btn btn-sm btn-white border" title="Editar Usuário">
-                                    <i class="bi bi-pencil-square"></i>
+                            <div class="d-flex justify-content-end gap-2 flex-wrap">
+                                <a href="{{ url_for('usuarios.editar_usuario', id=usuario.id) }}" class="btn btn-sm btn-outline-dark d-inline-flex align-items-center" title="Editar Usuário">
+                                    <i class="bi bi-pencil-square me-1"></i> Editar
                                 </a>
                                 
-                                <form action="{{ url_for('usuarios.toggle_usuario', id=usuario.id) }}" method="POST" class="d-inline">
+                                <form action="{{ url_for('usuarios.toggle_usuario', id=usuario.id) }}" method="POST" class="d-inline user-action-form">
                                     {% if usuario.ativo %}
-                                        <button type="submit" class="btn btn-sm btn-white border text-danger" title="Desativar" onclick="return confirm('Desativar este usuário impedirá seu acesso ao sistema. Continuar?')">
-                                            <i class="bi bi-person-x"></i>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger btn-action d-inline-flex align-items-center" title="Desativar" onclick="return confirm('Desativar este usuário impedirá seu acesso ao sistema. Continuar?')">
+                                            <i class="bi bi-person-x me-1"></i> Desativar
                                         </button>
                                     {% else %}
-                                        <button type="submit" class="btn btn-sm btn-white border text-success" title="Ativar">
-                                            <i class="bi bi-person-check"></i>
+                                        <button type="submit" class="btn btn-sm btn-outline-success btn-action d-inline-flex align-items-center" title="Ativar">
+                                            <i class="bi bi-person-check me-1"></i> Ativar
                                         </button>
                                     {% endif %}
                                 </form>
 
-                                <button type="button" class="btn btn-sm btn-white border text-warning" title="Redefinir Senha" data-bs-toggle="modal" data-bs-target="#resetModal{{ usuario.id }}">
-                                    <i class="bi bi-key"></i>
+                                <button type="button" class="btn btn-sm btn-outline-warning d-inline-flex align-items-center" title="Redefinir Senha" data-bs-toggle="modal" data-bs-target="#resetModal{{ usuario.id }}">
+                                    <i class="bi bi-key me-1"></i> Resetar Senha
                                 </button>
                             </div>
 
@@ -80,17 +80,18 @@
                                             </h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                                         </div>
-                                        <form action="{{ url_for('usuarios.reset_password', id=usuario.id) }}" method="POST">
+                                        <form action="{{ url_for('usuarios.reset_password', id=usuario.id) }}" method="POST" class="needs-validation user-action-form" novalidate>
                                             <div class="modal-body p-4">
                                                 <p class="text-muted small">Defina uma nova senha para o usuário <strong>{{ usuario.nome }}</strong>.</p>
                                                 <div class="mb-3">
                                                     <label for="nova_senha{{ usuario.id }}" class="form-label">Nova Senha</label>
                                                     <input type="password" class="form-control" id="nova_senha{{ usuario.id }}" name="nova_senha" required minlength="6" placeholder="Mínimo 6 caracteres">
+                                                    <div class="invalid-feedback">A senha deve ter pelo menos 6 caracteres.</div>
                                                 </div>
                                             </div>
                                             <div class="modal-footer bg-light py-2">
                                                 <button type="button" class="btn btn-link text-secondary text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
-                                                <button type="submit" class="btn btn-warning fw-bold px-4">Salvar Nova Senha</button>
+                                                <button type="submit" class="btn btn-warning btn-action fw-bold px-4">Salvar Nova Senha</button>
                                             </div>
                                         </form>
                                     </div>
@@ -111,4 +112,29 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    'use strict'
+    const forms = document.querySelectorAll('.user-action-form');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            } else {
+                const btn = form.querySelector('.btn-action');
+                if (btn) {
+                    btn.classList.add('btn-loading');
+                    btn.disabled = true;
+                }
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+})();
+</script>
 {% endblock %}

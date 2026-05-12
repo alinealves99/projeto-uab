@@ -1,9 +1,9 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, session
 from app.models.evento import Evento
 from app.models.anexo import Anexo
-from app.services.evento_service import verificar_conflito
+from app.services.evento_service import verificar_conflito, listar_eventos_por_perfil, criar_novo_evento
 from app.services.upload_service import salvar_arquivo
-from app.database import db
+from app.extensions import db
 from datetime import datetime
 from app.utils.auth_utils import login_required, role_required
 
@@ -39,19 +39,21 @@ def criar_evento():
             flash("Extensão de arquivo não permitida", "danger")
             return render_template('events/create.html')
         
-        novo_evento = Evento(
-            titulo=titulo,
-            descricao=descricao,
-            data_inicio=data_inicio,
-            data_fim=data_fim,
-            local=local,
-            oficio_path=oficio_path,
-            status="PENDENTE",
-            solicitante_id=session.get('user_id')
-        )
+        dados_evento = {
+            "titulo": titulo,
+            "descricao": descricao,
+            "data_inicio": data_inicio,
+            "data_fim": data_fim,
+            "local": local,
+            "oficio_path": oficio_path
+        }
         
-        db.session.add(novo_evento)
-        db.session.commit()
+        evento, erro = criar_novo_evento(dados_evento, session.get('user_id'))
+        
+        if erro:
+            print(f"Erro ao criar evento: {erro}")
+            flash("Erro crítico ao salvar no banco de dados.", "danger")
+            return render_template('events/create.html')
         
         flash("Evento criado com sucesso e enviado para aprovação!", "success")
         return redirect(url_for('eventos.listar_eventos'))
@@ -60,16 +62,7 @@ def criar_evento():
 
 @eventos_bp.route('/api/events', methods=['GET'])
 def api_eventos():
-    start = request.args.get('start')
-    end = request.args.get('end')
-    
     query = Evento.query.filter_by(status="DEFERIDO")
-    
-    # Simple date filtering if parameters provided
-    if start and end:
-        # FullCalendar sends ISO dates
-        pass 
-        
     eventos = query.all()
     
     return jsonify([{
@@ -83,12 +76,7 @@ def api_eventos():
 
 @eventos_bp.route('/events', methods=['GET'])
 def listar_eventos():
-    # Se logado como administrador, vê todos, caso contrário apenas deferidos
-    if session.get('user_role') == 'ADMINISTRADOR':
-        eventos = Evento.query.order_by(Evento.data_inicio.desc()).all()
-    else:
-        eventos = Evento.query.filter_by(status="DEFERIDO").order_by(Evento.data_inicio.desc()).all()
-    
+    eventos = listar_eventos_por_perfil(session.get('user_role'))
     return render_template('events/list.html', eventos=eventos)
 
 @eventos_bp.route('/events/indeferidos', methods=['GET'])
@@ -108,7 +96,13 @@ def detalhes_evento(id):
 @role_required('ADMINISTRADOR')
 def excluir_evento(id):
     evento = Evento.query.get_or_404(id)
-    db.session.delete(evento)
-    db.session.commit()
-    flash("Evento excluído com sucesso!", "success")
+    try:
+        db.session.delete(evento)
+        db.session.commit()
+        from app.extensions import cache
+        cache.delete('dashboard_stats')
+        flash("Evento excluído com sucesso!", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash("Erro ao excluir evento.", "danger")
     return redirect(url_for('eventos.listar_eventos'))

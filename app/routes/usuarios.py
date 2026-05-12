@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from app.models.usuario import Usuario
-from app.database import db
+from app.extensions import db
 from app.utils.auth_utils import login_required, role_required
 from werkzeug.security import generate_password_hash
 
@@ -30,10 +30,16 @@ def criar_usuario():
         novo_usuario = Usuario(nome=nome, email=email, role=role)
         novo_usuario.set_password(senha)
         
-        db.session.add(novo_usuario)
-        db.session.commit()
+        try:
+            db.session.add(novo_usuario)
+            db.session.commit()
+            flash('Usuário criado com sucesso!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            print(f"Erro ao criar usuário: {str(e)}")
+            flash('Erro ao salvar novo usuário no banco.', 'danger')
+            return render_template('users/create.html')
         
-        flash('Usuário criado com sucesso!', 'success')
         return redirect(url_for('usuarios.listar_usuarios'))
 
     return render_template('users/create.html')
@@ -48,8 +54,13 @@ def editar_usuario(id):
         usuario.nome = request.form.get('nome')
         usuario.role = request.form.get('role')
         
-        db.session.commit()
-        flash('Usuário atualizado com sucesso!', 'success')
+        try:
+            db.session.commit()
+            flash('Usuário atualizado com sucesso!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            print(f"Erro ao atualizar usuário: {str(e)}")
+            flash('Erro ao salvar alterações no banco.', 'danger')
         return redirect(url_for('usuarios.listar_usuarios'))
 
     return render_template('users/edit.html', usuario=usuario)
@@ -63,9 +74,14 @@ def toggle_usuario(id):
         flash('Você não pode desativar a si mesmo.', 'danger')
     else:
         usuario.ativo = not usuario.ativo
-        db.session.commit()
-        status = "ativado" if usuario.ativo else "desativado"
-        flash(f'Usuário {usuario.nome} {status} com sucesso!', 'info')
+        try:
+            db.session.commit()
+            status = "ativado" if usuario.ativo else "desativado"
+            flash(f'Usuário {usuario.nome} {status} com sucesso!', 'info')
+        except Exception as e:
+            db.session.rollback()
+            print(f"Erro ao alternar status do usuário: {str(e)}")
+            flash('Erro ao atualizar status no banco.', 'danger')
     
     return redirect(url_for('usuarios.listar_usuarios'))
 
@@ -78,8 +94,13 @@ def reset_password(id):
     
     if nova_senha:
         usuario.set_password(nova_senha)
-        db.session.commit()
-        flash(f'Senha de {usuario.nome} redefinida.', 'success')
+        try:
+            db.session.commit()
+            flash(f'Senha de {usuario.nome} redefinida.', 'success')
+        except Exception as e:
+            db.session.rollback()
+            print(f"Erro ao redefinir senha: {str(e)}")
+            flash('Erro ao salvar nova senha no banco.', 'danger')
     else:
         flash('Senha não fornecida.', 'danger')
         

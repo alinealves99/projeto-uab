@@ -23,15 +23,23 @@
 - `test_agenda_empty_state`: Verifica a mensagem de "Nenhum evento" quando a API retorna `[]`.
 - `test_form_submission_loading`: Verifica se o botão de envio fica `disabled` após o clique.
 - `test_validation_feedback_visual`: Garante que campos inválidos exibem a borda vermelha e a mensagem de erro.
+- `test_api_error_handling_alert`: Valida se o frontend exibe o erro específico retornado pela API em caso de falha no deferimento.
 
-### 2.4 Visibilidade por Perfil
+### 2.4 Visibilidade e Ações Administrativas
 - `test_admin_menu_users_visibility`: ADMIN vê menu "Usuários".
 - `test_secretario_menu_users_hidden`: SECRETARIO NÃO vê menu "Usuários".
 - `test_consultor_menus_restricted`: CONSULTOR NÃO vê "Aprovações" nem "Eventos Indeferidos".
+- `test_user_actions_buttons_alignment`: Verifica se os botões de ação na lista de usuários estão agrupados corretamente (CSS `gap-2`).
+- `test_approve_event_flow_integration`: Valida o ciclo completo: Clique em Deferir -> Requisição API -> Mudança de Status no DB -> Reload da página.
 
-### 2.5 Componentes e Design
-- `test_status_badges_colors`: Verifica se DEFERIDO é verde, PENDENTE é amarelo e INDEFERIDO é vermelho.
-- `test_table_responsivity`: Garante que tabelas de usuários possuem scroll horizontal em telas pequenas.
+### 2.6 Integridade de Dados e Transações
+- `test_db_rollback_on_failure`: Simula um erro durante a criação de evento e verifica se o `rollback()` impediu a criação parcial ou inconsistência no banco.
+- `test_db_write_permissions`: Valida se o ambiente de execução permite a escrita de arquivos temporários do SQLite (check de modo readonly).
+
+### 2.7 Otimização e Performance
+- `test_dashboard_cache`: Verifica se o acesso repetido ao dashboard em curto intervalo não gera novas consultas pesadas ao banco (validar via cache hit).
+- `test_service_modularization`: Garante que as rotas utilizam métodos dos serviços em vez de lógica direta do SQLAlchemy.
+- `test_background_cleanup_job`: Valida se o job de limpeza de arquivos remove arquivos temporários ou órfãos sem travar a thread principal da aplicação.
 
 ## 3. Ferramentas
 - **Pytest**: Execução de testes de integração backend/frontend.

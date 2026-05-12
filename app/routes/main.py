@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, session
-from app.models.evento import Evento
 from app.utils.auth_utils import login_required
+from app.services.relatorio_service import gerar_estatisticas_dashboard
 
 main_bp = Blueprint('main', __name__)
 
@@ -13,6 +13,5 @@ def index():
 @main_bp.route('/dashboard')
 @login_required
 def dashboard():
-    total_eventos = Evento.query.count()
-    pendentes = Evento.query.filter_by(status='PENDENTE').count()
-    return render_template('dashboard.html', total_eventos=total_eventos, pendentes=pendentes)
+    stats = gerar_estatisticas_dashboard()
+    return render_template('dashboard.html', **stats)

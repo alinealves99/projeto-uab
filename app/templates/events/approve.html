@@ -44,7 +44,7 @@
                         </td>
                         <td class="text-end pe-4">
                             <div class="btn-group shadow-sm">
-                                <button class="btn btn-sm btn-success fw-bold px-3" onclick="aprovar({{ evento.id }}, '{{ evento.titulo }}')" title="Deferir Evento">
+                                <button class="btn btn-sm btn-success fw-bold px-3" onclick="aprovar({{ evento.id }}, '{{ evento.titulo }}', this)" title="Deferir Evento">
                                     <i class="bi bi-check-lg me-1"></i>Deferir
                                 </button>
                                 <button class="btn btn-sm btn-danger fw-bold px-3" onclick="reprovar({{ evento.id }}, '{{ evento.titulo }}')" title="Indeferir Evento">
@@ -96,9 +96,8 @@
 
 {% block extra_js %}
 <script>
-function aprovar(id, titulo) {
+function aprovar(id, titulo, btn) {
     if (confirm(`Deseja realmente DEFERIR o evento "${titulo}"?\nEsta ação o tornará visível na agenda pública.`)) {
-        const btn = event.currentTarget;
         btn.classList.add('btn-loading');
         btn.disabled = true;
 
@@ -106,13 +105,19 @@ function aprovar(id, titulo) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ decisao: 'DEFERIDO' })
-        }).then(res => {
-            if (res.ok) window.location.reload();
-            else {
-                alert('Erro ao processar a solicitação');
+        }).then(async res => {
+            if (res.ok) {
+                window.location.reload();
+            } else {
+                const data = await res.json();
+                alert('Erro: ' + (data.error || 'Falha ao processar a solicitação'));
                 btn.classList.remove('btn-loading');
                 btn.disabled = false;
             }
+        }).catch(err => {
+            alert('Erro de rede ou conexão: ' + err.message);
+            btn.classList.remove('btn-loading');
+            btn.disabled = false;
         });
     }
 }
@@ -129,7 +134,7 @@ function confirmarIndeferimento() {
     const justificativa = document.getElementById('justificativa').value;
     const btn = document.getElementById('btnConfirmarRejeicao');
     
-    if (!justificativa) {
+    if (!justificativa.trim()) {
         alert('Por favor, informe a justificativa obrigatória.');
         return;
     }
@@ -144,13 +149,19 @@ function confirmarIndeferimento() {
             decisao: 'INDEFERIDO',
             justificativa: justificativa
         })
-    }).then(res => {
-        if (res.ok) window.location.reload();
-        else {
-            alert('Erro ao processar a solicitação');
+    }).then(async res => {
+        if (res.ok) {
+            window.location.reload();
+        } else {
+            const data = await res.json();
+            alert('Erro: ' + (data.error || 'Falha ao processar a solicitação'));
             btn.classList.remove('btn-loading');
             btn.disabled = false;
         }
+    }).catch(err => {
+        alert('Erro de rede ou conexão: ' + err.message);
+        btn.classList.remove('btn-loading');
+        btn.disabled = false;
     });
 }
 </script>

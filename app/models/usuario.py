@@ -1,4 +1,4 @@
-from app.database import db
+from app.extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
 
 class Usuario(db.Model):

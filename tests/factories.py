@@ -1,5 +1,5 @@
 import factory
-from app.database import db
+from app.extensions import db
 from app.models.usuario import Usuario
 from app.models.evento import Evento
 from datetime import datetime, timedelta
