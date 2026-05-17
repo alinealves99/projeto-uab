@@ -1,15 +1,15 @@
 from app import create_app
 from app.extensions import db
 from app.models.usuario import Usuario
-from app.models.evento import Evento
-from app.models.anexo import Anexo
+from flask_migrate import upgrade
 import os
 
 app = create_app()
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
+        # Garante que o banco de dados está atualizado com as migrations
+        upgrade()
         
         # Criar usuário ADMINISTRADOR inicial se não existir
         admin_email = app.config.get('ADMIN_EMAIL')

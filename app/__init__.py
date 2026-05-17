@@ -2,9 +2,9 @@ from flask import Flask
 from config import Config
 from app.extensions import db, migrate, cache, scheduler
 
-def create_app():
+def create_app(config_class=Config):
     app = Flask(__name__)
-    app.config.from_object(Config)
+    app.config.from_object(config_class)
 
     # Configure Cache
     app.config['CACHE_TYPE'] = 'FileSystemCache'

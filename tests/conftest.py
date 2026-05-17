@@ -1,4 +1,5 @@
 import pytest
+from config import Config
 from app import create_app
 from app.extensions import db
 from app.models.usuario import Usuario
@@ -7,12 +8,12 @@ from app.models.anexo import Anexo
 
 @pytest.fixture(scope='session')
 def app():
-    app = create_app()
-    app.config.update({
-        "TESTING": True,
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "WTF_CSRF_ENABLED": False  # Facilita testes de formulário
-    })
+    class TestConfig(Config):
+        TESTING = True
+        SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+        WTF_CSRF_ENABLED = False
+
+    app = create_app(TestConfig)
 
     with app.app_context():
         db.create_all()

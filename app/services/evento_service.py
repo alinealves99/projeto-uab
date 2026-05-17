@@ -15,9 +15,9 @@ def verificar_conflito(data_inicio, data_fim, local, ignore_id=None):
     return query.first() is not None
 
 def listar_eventos_por_perfil(user_role):
-    if user_role == 'ADMINISTRADOR':
-        return Evento.query.order_by(Evento.data_inicio.desc()).all()
-    return Evento.query.filter_by(status="DEFERIDO").order_by(Evento.data_inicio.desc()).all()
+    # Regra: Agenda Modo Lista deve exibir TODOS os eventos (PENDENTE, DEFERIDO, INDEFERIDO)
+    # para todos os perfis de usuário.
+    return Evento.query.order_by(Evento.data_inicio.desc()).all()
 
 def criar_novo_evento(dados, solicitante_id):
     novo_evento = Evento(**dados, solicitante_id=solicitante_id, status="PENDENTE")

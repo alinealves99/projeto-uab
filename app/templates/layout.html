@@ -29,6 +29,9 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ 'active' if request.endpoint == 'eventos.listar_indeferidos' }}" href="{{ url_for('eventos.listar_indeferidos') }}">Eventos Indeferidos</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ 'active' if 'relatorios' in request.endpoint }}" href="{{ url_for('relatorios.relatorio_dashboard') }}">Relatórios</a>
+                            </li>
                             {% endif %}
                             {% if session.get('user_role') in ['ADMINISTRADOR', 'SECRETARIO'] %}
                             <li class="nav-item">

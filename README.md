@@ -11,7 +11,8 @@ Sistema para gerenciamento de eventos, controle de agenda do plenário e fluxo d
 - **Acessibilidade**: Navegação por teclado, labels semânticas e suporte a leitores de tela (ARIA).
 - **Responsividade**: Experiência otimizada para Desktop, Tablet e Mobile (Agenda dinâmica).
 - **Gestão de Usuários**: Cadastro, edição, ativação/desativação e redefinição de senha (apenas administradores).
-- **Agenda Interativa**: Visualização de eventos deferidos em calendário (FullCalendar).
+- **Agenda Interativa**: Visualização de eventos **deferidos** em calendário (FullCalendar) e listagem completa de todos os status (Pendente, Deferido, Indeferido) no modo lista com filtros.
+- **Módulo de Relatórios**: Dashboard gerencial com estatísticas inteligentes (exclusão de indeferidos nos indicadores operacionais mensais), gráficos (Chart.js) e exportação (CSV/PDF).
 - **Fluxo de Aprovação**: Solicitação de eventos com upload de ofício e análise por secretários.
 - **Eventos Indeferidos**: Listagem administrativa detalhada de solicitações rejeitadas com justificativa.
 - **Segurança**: Controle de acesso baseado em perfis (ADMINISTRADOR, SECRETARIO, CONSULTOR) e bloqueio de usuários inativos.

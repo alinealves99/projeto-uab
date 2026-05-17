@@ -1,0 +1,244 @@
+{% extends 'layout.html' %}
+
+{% block title %}Relatórios Administrativos - UAB Eventos{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gráfico por Status
+        const ctxStatus = document.getElementById('chartStatus').getContext('2d');
+        new Chart(ctxStatus, {
+            type: 'pie',
+            data: {
+                labels: {{ dados.por_status | map(attribute='status') | list | tojson }},
+                datasets: [{
+                    data: {{ dados.por_status | map(attribute='total') | list | tojson }},
+                    backgroundColor: ['#ffc107', '#198754', '#dc3545', '#0dcaf0']
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        // Gráfico por Mês
+        const ctxMes = document.getElementById('chartMes').getContext('2d');
+        new Chart(ctxMes, {
+            type: 'bar',
+            data: {
+                labels: {{ dados.por_mes | map(attribute='mes') | list | tojson }},
+                datasets: [{
+                    label: 'Eventos',
+                    data: {{ dados.por_mes | map(attribute='total') | list | tojson }},
+                    backgroundColor: '#0d6efd'
+                }]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        });
+
+        // Gráfico por Local
+        const ctxLocal = document.getElementById('chartLocal').getContext('2d');
+        new Chart(ctxLocal, {
+            type: 'bar',
+            data: {
+                labels: {{ dados.por_local | map(attribute='local') | list | tojson }},
+                datasets: [{
+                    label: 'Eventos',
+                    data: {{ dados.por_local | map(attribute='total') | list | tojson }},
+                    backgroundColor: '#6610f2'
+                }]
+            },
+            options: { indexAxis: 'y', responsive: true }
+        });
+
+        // Linha Temporal
+        const ctxLinha = document.getElementById('chartLinha').getContext('2d');
+        new Chart(ctxLinha, {
+            type: 'line',
+            data: {
+                labels: {{ dados.por_mes | map(attribute='mes') | list | tojson }},
+                datasets: [{
+                    label: 'Tendência',
+                    data: {{ dados.por_mes | map(attribute='total') | list | tojson }},
+                    borderColor: '#198754',
+                    tension: 0.1,
+                    fill: false
+                }]
+            }
+        });
+    });
+
+    function limparFiltros() {
+        window.location.href = "{{ url_for('relatorios.relatorio_dashboard') }}";
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold">Relatórios Administrativos</h2>
+        <p class="text-muted">Acompanhamento gerencial de utilização do plenário.</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <div class="btn-group">
+            <a href="{{ url_for('relatorios.exportar_csv', **request.args) }}" class="btn btn-outline-secondary">Exportar CSV</a>
+            <a href="{{ url_for('relatorios.exportar_pdf', **request.args) }}" class="btn btn-outline-danger">Exportar PDF</a>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-2">
+                <label for="data_inicio" class="form-label">Data Início</label>
+                <input type="date" id="data_inicio" name="data_inicio" class="form-control" value="{{ filtros.get('data_inicio', '') }}">
+            </div>
+            <div class="col-md-2">
+                <label for="data_fim" class="form-label">Data Fim</label>
+                <input type="date" id="data_fim" name="data_fim" class="form-control" value="{{ filtros.get('data_fim', '') }}">
+            </div>
+            <div class="col-md-2">
+                <label for="status" class="form-label">Status</label>
+                <select id="status" name="status" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="PENDENTE" {{ 'selected' if filtros.get('status') == 'PENDENTE' }}>Pendente</option>
+                    <option value="DEFERIDO" {{ 'selected' if filtros.get('status') == 'DEFERIDO' }}>Deferido</option>
+                    <option value="INDEFERIDO" {{ 'selected' if filtros.get('status') == 'INDEFERIDO' }}>Indeferido</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="local" class="form-label">Local</label>
+                <input type="text" id="local" name="local" class="form-control" placeholder="Ex: Plenário" value="{{ filtros.get('local', '') }}">
+            </div>
+            <div class="col-md-2">
+                <label for="usuario_id" class="form-label">Solicitante</label>
+                <select id="usuario_id" name="usuario_id" class="form-select">
+                    <option value="">Todos</option>
+                    {% for u in usuarios %}
+                    <option value="{{ u.id }}" {{ 'selected' if filtros.get('usuario_id') == u.id|string }}>{{ u.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                <button type="button" class="btn btn-light" onclick="limparFiltros()">Limpar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Cards de Resumo -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-primary text-white h-100">
+            <div class="card-body">
+                <h6 class="card-title text-uppercase opacity-75">Total Eventos</h6>
+                <h2 class="fw-bold mb-0">{{ dados.total }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-success text-white h-100">
+            <div class="card-body">
+                <h6 class="card-title text-uppercase opacity-75">Deferidos</h6>
+                <h2 class="fw-bold mb-0">{{ dados.deferidos }}</h2>
+                <small>Taxa de Aprovação: {{ dados.taxa_aprovacao }}%</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-danger text-white h-100">
+            <div class="card-body">
+                <h6 class="card-title text-uppercase opacity-75">Indeferidos</h6>
+                <h2 class="fw-bold mb-0">{{ dados.indeferidos }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-warning text-dark h-100">
+            <div class="card-body">
+                <h6 class="card-title text-uppercase opacity-75">Pendentes</h6>
+                <h2 class="fw-bold mb-0">{{ dados.pendentes }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráficos -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-bold">Status dos Eventos</div>
+            <div class="card-body">
+                <canvas id="chartStatus"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-bold">Eventos por Mês</div>
+            <div class="card-body">
+                <canvas id="chartMes"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-bold">Eventos por Local</div>
+            <div class="card-body">
+                <canvas id="chartLocal"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-bold">Tendência Temporal</div>
+            <div class="card-body">
+                <canvas id="chartLinha"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabela de Últimos Eventos -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white fw-bold">Últimos Eventos</div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Título</th>
+                    <th>Local</th>
+                    <th>Início</th>
+                    <th>Status</th>
+                    <th>Solicitante</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in dados.ultimos_eventos %}
+                <tr>
+                    <td>{{ e.titulo }}</td>
+                    <td>{{ e.local }}</td>
+                    <td>{{ e.data_inicio.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>
+                        <span class="badge {% if e.status == 'DEFERIDO' %}bg-success{% elif e.status == 'INDEFERIDO' %}bg-danger{% else %}bg-warning{% endif %}">
+                            {{ e.status }}
+                        </span>
+                    </td>
+                    <td>{{ e.solicitante.nome if e.solicitante else 'N/A' }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">Nenhum evento encontrado para os filtros selecionados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

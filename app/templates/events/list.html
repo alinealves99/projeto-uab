@@ -64,8 +64,8 @@
                             </span>
                         </td>
                         <td class="text-end pe-3">
-                            <a href="{{ url_for('eventos.detalhes_evento', id=evento.id) }}" class="btn btn-sm btn-outline-secondary" title="Ver Detalhes">
-                                <i class="bi bi-eye"></i>
+                            <a href="{{ url_for('eventos.detalhes_evento', id=evento.id) }}" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" title="Ver Detalhes">
+                                <i class="bi bi-eye me-1"></i> Ver Detalhes
                             </a>
                         </td>
                     </tr>
@@ -92,6 +92,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById('calendar');
     const loadingEl = document.getElementById('calendar-loading');
     
+    // Detectar modo de visualização inicial via query param
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewParam = urlParams.get('view');
+    
+    if (viewParam === 'list') {
+        switchView('list');
+    }
+
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth',
         locale: 'pt-br',
