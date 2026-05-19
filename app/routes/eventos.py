@@ -58,6 +58,7 @@ def criar_evento():
 
 @eventos_bp.route('/api/events', methods=['GET'])
 def api_eventos():
+    # Segurança: Apenas eventos DEFERIDOS para a agenda pública
     eventos = EventoService.listar_eventos_deferidos()
     
     return jsonify([{
@@ -65,13 +66,18 @@ def api_eventos():
         "title": e.titulo,
         "start": e.data_inicio.isoformat(),
         "end": e.data_fim.isoformat(),
-        "color": "#198754", # Sempre DEFERIDO nesta query
+        "color": "#198754",
         "url": url_for('eventos.detalhes_evento', id=e.id)
     } for e in eventos]), 200
 
 @eventos_bp.route('/events', methods=['GET'])
 def listar_eventos():
-    eventos = EventoService.listar_eventos_por_perfil(session.get('user_role'))
+    # Segurança: Se não logado, ver apenas DEFERIDOS. Se logado, segue regra de perfil.
+    user_role = session.get('user_role')
+    if not session.get('user_id'):
+        eventos = EventoService.listar_eventos_deferidos()
+    else:
+        eventos = EventoService.listar_eventos_por_perfil(user_role)
     return render_template('events/list.html', eventos=eventos)
 
 @eventos_bp.route('/events/indeferidos', methods=['GET'])
@@ -82,11 +88,18 @@ def listar_indeferidos():
     return render_template('events/indeferidos.html', eventos=eventos)
 
 @eventos_bp.route('/events/<int:id>', methods=['GET'])
+@login_required
 def detalhes_evento(id):
     evento = EventoService.buscar_por_id(id)
     if not evento:
         flash("Evento não encontrado", "danger")
         return redirect(url_for('eventos.listar_eventos'))
+    
+    # Segurança: Usuários comuns só veem eventos DEFERIDOS
+    if session.get('user_role') not in ['ADMINISTRADOR', 'SECRETARIO'] and evento.status != 'DEFERIDO':
+        flash("Acesso não autorizado aos detalhes deste evento.", "warning")
+        return redirect(url_for('eventos.listar_eventos'))
+        
     return render_template('events/detail.html', evento=evento)
 
 @eventos_bp.route('/events/delete/<int:id>', methods=['POST'])
