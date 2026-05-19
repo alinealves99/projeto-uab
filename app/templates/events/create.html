@@ -11,6 +11,7 @@
             </div>
             <div class="card-body p-4">
                 <form id="create-event-form" method="POST" action="{{ url_for('eventos.criar_evento') }}" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="mb-3">
                         <label for="titulo" class="form-label">Título do Evento <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="titulo" name="titulo" required placeholder="Ex: 1ª Sessão Ordinária de Maio">

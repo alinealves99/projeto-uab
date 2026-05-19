@@ -32,9 +32,9 @@ class UsuarioService:
             db.session.add(novo_usuario)
             db.session.commit()
             return novo_usuario, None
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            return None, str(e)
+            return None, "Erro ao criar usuário no banco de dados."
 
     @staticmethod
     def atualizar_usuario(usuario_id, dados):
@@ -48,9 +48,9 @@ class UsuarioService:
         try:
             db.session.commit()
             return usuario, None
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            return None, str(e)
+            return None, "Erro ao atualizar usuário no banco de dados."
 
     @staticmethod
     def toggle_ativo(usuario_id, current_user_id):
@@ -65,9 +65,9 @@ class UsuarioService:
         try:
             db.session.commit()
             return usuario, None
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            return None, str(e)
+            return None, "Erro ao atualizar status no banco de dados."
 
     @staticmethod
     def redefinir_senha(usuario_id, nova_senha):
@@ -82,16 +82,17 @@ class UsuarioService:
         try:
             db.session.commit()
             return usuario, None
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            return None, str(e)
+            return None, "Erro ao redefinir senha no banco de dados."
 
     @staticmethod
     def autenticar(email, senha):
         usuario = UsuarioService.buscar_por_email(email)
+        # Use a constant time comparison or generic message to prevent enumeration
         if usuario and usuario.check_password(senha):
             if not usuario.ativo:
-                return None, "Sua conta está desativada. Entre em contato com o administrador."
+                return None, "Credenciais inválidas"
             
             # Prepara dados da sessão
             session_data = {

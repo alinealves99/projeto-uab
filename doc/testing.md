@@ -37,6 +37,12 @@
 - `test_contrast_ratios`: (Manual/Auditoria) Garantir legibilidade de textos sobre fundos coloridos.
 - `test_input_label_association`: Verifica se todos os inputs possuem labels associados.
 
+### 2.7 Segurança
+- `test_csrf_protection`: Verifica se requisições POST sem token CSRF são bloqueadas (403 Forbidden).
+- `test_rate_limiting_login`: Valida se múltiplas tentativas de login em curto intervalo retornam erro 429 (Too Many Requests).
+- `test_generic_auth_messages`: Garante que o sistema não diferencia erros de "usuário não encontrado" de "senha incorreta" ou "usuário inativo".
+- `test_session_regeneration`: Verifica se o ID da sessão muda após o login.
+
 ## 3. Ferramentas
 - **Pytest**: Execução de testes de integração e backend.
 - **Coverage**: Monitoramento da cobertura de código (meta >= 80%).

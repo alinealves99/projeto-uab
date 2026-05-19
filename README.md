@@ -15,7 +15,13 @@ Sistema para gerenciamento de eventos, controle de agenda do plenário e fluxo d
 - **Módulo de Relatórios**: Dashboard gerencial com estatísticas inteligentes (exclusão de indeferidos nos indicadores operacionais mensais), gráficos (Chart.js) e exportação (CSV/PDF).
 - **Fluxo de Aprovação**: Solicitação de eventos com upload de ofício e análise por secretários.
 - **Eventos Indeferidos**: Listagem administrativa detalhada de solicitações rejeitadas com justificativa.
-- **Segurança**: Controle de acesso baseado em perfis (ADMINISTRADOR, SECRETARIO, CONSULTOR) e bloqueio de usuários inativos.
+- **Segurança e Hardening**: 
+  - Controle de acesso baseado em perfis (ADMINISTRADOR, SECRETARIO, CONSULTOR).
+  - Proteção global contra **CSRF** (Cross-Site Request Forgery).
+  - Mitigação de ataques de **Brute Force** via Rate Limiting.
+  - Prevenção de **Session Fixation** com regeneração de ID de sessão.
+  - Cookies de sessão protegidos (`HttpOnly`, `SameSite=Lax`).
+  - Mensagens de erro padronizadas para evitar **Enumeração de Usuários** e vazamento de informações técnicas.
 
 ## Tecnologias Utilizadas
 

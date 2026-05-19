@@ -87,18 +87,20 @@
 - Sincronização rigorosa entre os status retornados pela API e a renderização visual.
 - Tratamento de timeouts e erros de rede com feedback visual para o usuário.
 
-## 6. Arquitetura e Performance
+## 7. Segurança e Proteção de Dados
 
-### 6.1 Persistência
-- **Engine**: SQLite (em arquivo `instance/database.db`).
-- **ORM**: SQLAlchemy 3.x.
-- **Migrações**: Flask-Migrate (Alembic).
+### 7.1 Autenticação e Sessão
+- **Hashes de Senha**: Utilização de `PBKDF2` com salt (via Werkzeug) para armazenamento seguro de credenciais.
+- **Gestão de Sessão**:
+  - Cookies configurados com `HttpOnly=True` e `SameSite=Lax`.
+  - Regeneração de ID de sessão após login bem-sucedido para prevenir Session Fixation.
+  - Tempo de expiração de sessão definido para 1 hora de inatividade.
 
-### 6.2 Otimização
-- **Cache**: Flask-Caching (FileSystemCache) para estatísticas do dashboard.
-- **Jobs**: Flask-APScheduler para tarefas de manutenção.
+### 7.2 Proteção Contra Ataques Comuns
+- **CSRF**: Proteção global via `Flask-WTF`. Todos os formulários e chamadas AJAX (fetch) devem incluir e validar tokens CSRF.
+- **Brute Force**: Implementação de rate limiting na rota de login (máximo de 5 tentativas por minuto por IP).
+- **Enumeração de Usuários**: Mensagens de erro de autenticação padronizadas e genéricas ("Credenciais inválidas").
+- **Exposição de Dados**: Tratamento de exceções para evitar que erros técnicos do banco de dados ou do sistema sejam exibidos ao usuário final.
 
-### 6.3 Modularização e Manutenibilidade
-- **Service Layer**: Toda a lógica de negócio reside em `/app/services/`.
-- **Injeção de Configuração**: A função `create_app` aceita um objeto de configuração opcional, permitindo o isolamento completo entre ambientes (Produção vs Testes em `:memory:`).
-- **Singleton Pattern**: Instâncias únicas de extensões para evitar imports circulares.
+### 7.3 Autorização
+- Controle de acesso baseado em perfis (`ADMINISTRADOR`, `SECRETARIO`, `CONSULTOR`) implementado via decorators de rota.

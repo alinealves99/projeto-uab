@@ -98,6 +98,7 @@
                     
                     {% if session.get('user_role') == 'ADMINISTRADOR' %}
                     <form method="POST" action="{{ url_for('eventos.excluir_evento', id=evento.id) }}" class="d-inline" onsubmit="return confirm('ATENÇÃO: Esta ação é irreversível e excluirá permanentemente o evento e seus registros. Deseja continuar?')">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="btn btn-danger px-4 shadow-sm">
                             <i class="bi bi-trash3 me-2"></i>Excluir Registro
                         </button>

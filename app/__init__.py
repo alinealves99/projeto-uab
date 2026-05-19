@@ -1,6 +1,6 @@
 from flask import Flask
 from config import Config
-from app.extensions import db, migrate, cache, scheduler
+from app.extensions import db, migrate, cache, scheduler, csrf, limiter
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -11,9 +11,17 @@ def create_app(config_class=Config):
     app.config['CACHE_DIR'] = 'instance/cache'
     app.config['CACHE_DEFAULT_TIMEOUT'] = 300
 
+    # Session Hardening
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1 hour
+
     db.init_app(app)
     migrate.init_app(app, db)
     cache.init_app(app)
+    csrf.init_app(app)
+    limiter.init_app(app)
     
     if not scheduler.running:
         scheduler.init_app(app)

@@ -45,9 +45,9 @@ class EventoService:
             db.session.commit()
             cache.delete('dashboard_stats')
             return novo_evento, None
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            return None, str(e)
+            return None, "Erro ao criar evento no banco de dados."
 
     @staticmethod
     def excluir_evento(evento_id):
@@ -60,9 +60,9 @@ class EventoService:
             db.session.commit()
             cache.delete('dashboard_stats')
             return True, None
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            return False, str(e)
+            return False, "Erro ao excluir evento no banco de dados."
 
     @staticmethod
     def processar_decisao(evento_id, decisao, justificativa, responsavel_id):
@@ -90,6 +90,6 @@ class EventoService:
             db.session.commit()
             cache.delete('dashboard_stats')
             return evento, None
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            return None, str(e)
+            return None, "Erro ao salvar decisão no banco de dados."

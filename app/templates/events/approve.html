@@ -103,7 +103,10 @@ function aprovar(id, titulo, btn) {
 
         fetch(`/aprovacoes/${id}/decisao`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
             body: JSON.stringify({ decisao: 'DEFERIDO' })
         }).then(async res => {
             if (res.ok) {
@@ -144,7 +147,10 @@ function confirmarIndeferimento() {
 
     fetch(`/aprovacoes/${id}/decisao`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
         body: JSON.stringify({ 
             decisao: 'INDEFERIDO',
             justificativa: justificativa

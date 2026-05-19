@@ -44,4 +44,4 @@ def test_login_usuario_inativo(client, db_session):
     
     data = {"email": user.email, "senha": "senha123"}
     response = client.post('/login', data=data)
-    assert "Sua conta está desativada" in response.get_data(as_text=True)
+    assert "Credenciais inválidas" in response.get_data(as_text=True)
