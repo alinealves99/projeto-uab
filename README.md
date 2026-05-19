@@ -94,5 +94,5 @@ coverage report -m
 
 ## Documentação Técnica
 
-- [Especificações Detalhadas](doc/03-especs.md)
+- [Especificações Detalhadas](doc/03-specs.md)
 - [Plano de Testes](doc/testing.md)
