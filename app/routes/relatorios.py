@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, send_file, jsonify, Response
+from flask import Blueprint, render_template, request, send_file, Response
 from app.services.relatorio_service import obter_dados_dashboard, filtrar_query_eventos
 from app.utils.auth_utils import login_required, role_required
-from app.models.usuario import Usuario
+from app.services.usuario_service import UsuarioService
+from app.extensions import db
 from datetime import datetime
 import csv
 import io
@@ -31,7 +32,7 @@ def relatorio_dashboard():
     filtros = {k: v for k, v in filtros.items() if v}
     
     dados = obter_dados_dashboard(filtros)
-    usuarios = Usuario.query.all()
+    usuarios = UsuarioService.listar_todos()
     
     return render_template('relatorios/dashboard.html', 
                            dados=dados, 
@@ -53,8 +54,8 @@ def exportar_csv():
     }
     filtros = {k: v for k, v in filtros.items() if v}
     
-    query = filtrar_query_eventos(filtros)
-    eventos = query.all()
+    stmt = filtrar_query_eventos(filtros)
+    eventos = db.session.execute(stmt).scalars().all()
     
     output = io.StringIO()
     writer = csv.writer(output)
@@ -94,8 +95,8 @@ def exportar_pdf():
     }
     filtros = {k: v for k, v in filtros.items() if v}
     
-    query = filtrar_query_eventos(filtros)
-    eventos = query.all()
+    stmt = filtrar_query_eventos(filtros)
+    eventos = db.session.execute(stmt).scalars().all()
     
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))

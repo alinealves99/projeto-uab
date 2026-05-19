@@ -1,9 +1,6 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, session
-from app.models.evento import Evento
-from app.models.anexo import Anexo
-from app.services.evento_service import verificar_conflito, listar_eventos_por_perfil, criar_novo_evento
+from app.services.evento_service import EventoService
 from app.services.upload_service import salvar_arquivo
-from app.extensions import db
 from datetime import datetime
 from app.utils.auth_utils import login_required, role_required
 
@@ -30,7 +27,7 @@ def criar_evento():
             flash("Ofício é obrigatório", "danger")
             return render_template('events/create.html')
 
-        if verificar_conflito(data_inicio, data_fim, local):
+        if EventoService.verificar_conflito(data_inicio, data_fim, local):
             flash("Conflito de horário detectado", "danger")
             return render_template('events/create.html')
 
@@ -48,10 +45,9 @@ def criar_evento():
             "oficio_path": oficio_path
         }
         
-        evento, erro = criar_novo_evento(dados_evento, session.get('user_id'))
+        evento, erro = EventoService.criar_novo_evento(dados_evento, session.get('user_id'))
         
         if erro:
-            print(f"Erro ao criar evento: {erro}")
             flash("Erro crítico ao salvar no banco de dados.", "danger")
             return render_template('events/create.html')
         
@@ -62,47 +58,44 @@ def criar_evento():
 
 @eventos_bp.route('/api/events', methods=['GET'])
 def api_eventos():
-    query = Evento.query.filter_by(status="DEFERIDO")
-    eventos = query.all()
+    eventos = EventoService.listar_eventos_deferidos()
     
     return jsonify([{
         "id": e.id,
         "title": e.titulo,
         "start": e.data_inicio.isoformat(),
         "end": e.data_fim.isoformat(),
-        "color": "#198754" if e.status == "DEFERIDO" else "#ffc107",
+        "color": "#198754", # Sempre DEFERIDO nesta query
         "url": url_for('eventos.detalhes_evento', id=e.id)
     } for e in eventos]), 200
 
 @eventos_bp.route('/events', methods=['GET'])
 def listar_eventos():
-    eventos = listar_eventos_por_perfil(session.get('user_role'))
+    eventos = EventoService.listar_eventos_por_perfil(session.get('user_role'))
     return render_template('events/list.html', eventos=eventos)
 
 @eventos_bp.route('/events/indeferidos', methods=['GET'])
 @login_required
 @role_required('ADMINISTRADOR', 'SECRETARIO')
 def listar_indeferidos():
-    eventos = Evento.query.filter_by(status='INDEFERIDO').order_by(Evento.data_inicio.desc()).all()
+    eventos = EventoService.listar_indeferidos()
     return render_template('events/indeferidos.html', eventos=eventos)
 
 @eventos_bp.route('/events/<int:id>', methods=['GET'])
 def detalhes_evento(id):
-    evento = Evento.query.get_or_404(id)
+    evento = EventoService.buscar_por_id(id)
+    if not evento:
+        flash("Evento não encontrado", "danger")
+        return redirect(url_for('eventos.listar_eventos'))
     return render_template('events/detail.html', evento=evento)
 
 @eventos_bp.route('/events/delete/<int:id>', methods=['POST'])
 @login_required
 @role_required('ADMINISTRADOR')
 def excluir_evento(id):
-    evento = Evento.query.get_or_404(id)
-    try:
-        db.session.delete(evento)
-        db.session.commit()
-        from app.extensions import cache
-        cache.delete('dashboard_stats')
+    sucesso, erro = EventoService.excluir_evento(id)
+    if sucesso:
         flash("Evento excluído com sucesso!", "success")
-    except Exception as e:
-        db.session.rollback()
-        flash("Erro ao excluir evento.", "danger")
+    else:
+        flash(f"Erro ao excluir evento: {erro}", "danger")
     return redirect(url_for('eventos.listar_eventos'))

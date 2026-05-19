@@ -1,6 +1,5 @@
-from flask import Blueprint, request, session, jsonify, redirect, url_for, render_template, flash
-from app.models.usuario import Usuario
-from app.extensions import db
+from flask import Blueprint, request, session, redirect, url_for, render_template, flash
+from app.services.usuario_service import UsuarioService
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -10,19 +9,13 @@ def login():
         email = request.form.get('email')
         senha = request.form.get('senha')
 
-        usuario = Usuario.query.filter_by(email=email).first()
-        if usuario and usuario.check_password(senha):
-            if not usuario.ativo:
-                flash('Sua conta está desativada. Entre em contato com o administrador.', 'warning')
-                return render_template('login.html')
-                
-            session['user_id'] = usuario.id
-            session['user_role'] = usuario.role
-            session['user_nome'] = usuario.nome
+        session_data, erro = UsuarioService.autenticar(email, senha)
+        if session_data:
+            session.update(session_data)
             flash('Login realizado com sucesso!', 'success')
             return redirect(url_for('main.dashboard'))
         
-        flash('Credenciais inválidas', 'danger')
+        flash(erro, 'danger')
     
     return render_template('login.html')
 
