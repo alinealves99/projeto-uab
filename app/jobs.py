@@ -8,7 +8,8 @@ def cleanup_orphan_files(app):
     Remove arquivos na pasta de uploads que não possuem registro no banco de dados.
     """
     with app.app_context():
-        upload_folder = os.path.join('app', 'static', 'uploads')
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        upload_folder = os.path.join(base_dir, 'private_uploads')
         if not os.path.exists(upload_folder):
             return
 

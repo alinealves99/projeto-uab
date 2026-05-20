@@ -13,8 +13,9 @@ def salvar_arquivo(arquivo):
     if not arquivo or not allowed_file(arquivo.filename):
         return None
     
-    # Save inside app/static/uploads
-    upload_folder = os.path.join('app', 'static', 'uploads')
+    # Save inside private_uploads (outside static/app)
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+    upload_folder = os.path.join(base_dir, 'private_uploads')
     if not os.path.exists(upload_folder):
         os.makedirs(upload_folder)
     

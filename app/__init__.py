@@ -1,10 +1,34 @@
-from flask import Flask
+from flask import Flask, request
 from config import Config
 from app.extensions import db, migrate, cache, scheduler, csrf, limiter
+from flask_talisman import Talisman
+import bleach
 
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
+
+    # Talisman: Security Headers
+    # CSP is basic here, allowing Bootstrap CDNs and local scripts
+    csp = {
+        'default-src': "'self'",
+        'script-src': [
+            "'self'",
+            'https://cdn.jsdelivr.net',
+            "'unsafe-inline'" # Required for some Bootstrap/FullCalendar interactions
+        ],
+        'style-src': [
+            "'self'",
+            'https://cdn.jsdelivr.net',
+            "'unsafe-inline'"
+        ],
+        'font-src': [
+            "'self'",
+            'https://cdn.jsdelivr.net'
+        ],
+        'img-src': ["'self'", 'data:']
+    }
+    Talisman(app, content_security_policy=csp, force_https=False) # force_https=True in prod
 
     # Configure Cache
     app.config['CACHE_TYPE'] = 'FileSystemCache'

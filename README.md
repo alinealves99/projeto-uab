@@ -21,6 +21,10 @@ Sistema para gerenciamento de eventos, controle de agenda do plenário e fluxo d
   - Mitigação de ataques de **Brute Force** via Rate Limiting.
   - Prevenção de **Session Fixation** com regeneração de ID de sessão.
   - Cookies de sessão protegidos (`HttpOnly`, `SameSite=Lax`).
+  - Headers de segurança HTTP (**HSTS, CSP, X-Frame-Options**) via Flask-Talisman.
+  - Armazenamento privado de documentos (**Private Uploads**) fora da área pública.
+  - Downloads autenticados de anexos.
+  - Sanitização de entrada (**XSS Protection**) com Bleach.
   - Mensagens de erro padronizadas para evitar **Enumeração de Usuários** e vazamento de informações técnicas.
 
 ## Tecnologias Utilizadas

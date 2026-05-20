@@ -101,6 +101,13 @@
 - **Brute Force**: Implementação de rate limiting na rota de login (máximo de 5 tentativas por minuto por IP).
 - **Enumeração de Usuários**: Mensagens de erro de autenticação padronizadas e genéricas ("Credenciais inválidas").
 - **Exposição de Dados**: Tratamento de exceções para evitar que erros técnicos do banco de dados ou do sistema sejam exibidos ao usuário final.
+- **Sanitização de Input**: Uso da biblioteca `Bleach` para limpar campos de texto livre (`titulo`, `descricao`), removendo scripts e tags HTML perigosas.
+
+### 7.4 Proteção de Infraestrutura e Arquivos
+- **Headers de Segurança**: Implementação do `Flask-Talisman` para forçar headers `HSTS`, `X-Content-Type-Options`, `X-Frame-Options` e `Content-Security-Policy`.
+- **Armazenamento Privado**: Documentos e ofícios são armazenados em um diretório fora da área pública (`private_uploads`).
+- **Acesso Controlado a Arquivos**: Downloads de ofícios são realizados através de uma rota autenticada (`/events/download/<filename>`), impedindo acesso anônimo direto.
+- **Secret Key**: Bloqueio de inicialização em produção caso a `SECRET_KEY` não esteja configurada.
 
 ### 7.3 Autorização
 - Controle de acesso baseado em perfis (`ADMINISTRADOR`, `SECRETARIO`, `CONSULTOR`) implementado via decorators de rota.

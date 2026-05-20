@@ -1,6 +1,7 @@
 from app.models.evento import Evento
 from app.extensions import db, cache
 from datetime import datetime, timezone
+import bleach
 
 class EventoService:
     @staticmethod
@@ -39,6 +40,14 @@ class EventoService:
 
     @staticmethod
     def criar_novo_evento(dados, solicitante_id):
+        # Sanitização de Input
+        if dados.get('titulo'):
+            dados['titulo'] = bleach.clean(dados['titulo'], tags=[], strip=True)
+        if dados.get('descricao'):
+            dados['descricao'] = bleach.clean(dados['descricao'], tags=['b', 'i', 'u', 'br'], strip=True)
+        if dados.get('local'):
+            dados['local'] = bleach.clean(dados['local'], tags=[], strip=True)
+
         novo_evento = Evento(**dados, solicitante_id=solicitante_id, status="PENDENTE")
         try:
             db.session.add(novo_evento)

@@ -1,10 +1,19 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, session
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, session, send_from_directory
 from app.services.evento_service import EventoService
 from app.services.upload_service import salvar_arquivo
 from datetime import datetime
+import os
 from app.utils.auth_utils import login_required, role_required
 
 eventos_bp = Blueprint('eventos', __name__)
+
+@eventos_bp.route('/events/download/<filename>')
+@login_required
+def download_oficio(filename):
+    # Segurança: Apenas usuários autenticados podem baixar documentos
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+    upload_folder = os.path.join(base_dir, 'private_uploads')
+    return send_from_directory(upload_folder, filename)
 
 @eventos_bp.route('/events/create', methods=['GET', 'POST'])
 @login_required

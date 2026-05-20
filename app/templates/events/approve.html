@@ -38,7 +38,7 @@
                         </td>
                         <td><span class="small">{{ evento.local }}</span></td>
                         <td>
-                            <a href="{{ url_for('static', filename='uploads/' + (evento.oficio_path or '')) }}" target="_blank" class="btn btn-sm btn-outline-info">
+                            <a href="{{ url_for('eventos.download_oficio', filename=evento.oficio_path) }}" target="_blank" class="btn btn-sm btn-outline-info">
                                 <i class="bi bi-file-earmark-text me-1"></i>Ver Ofício
                             </a>
                         </td>
